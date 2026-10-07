@@ -6,6 +6,11 @@ function Slider:Create(Fancy, container, settings)
 	local hasDescription = typeof(settings.Description) == "string" and settings.Description ~= ""
 	settings.Height = hasDescription and 74 or 58
 
+	local Step = tonumber(settings.Step)
+    if Step and Step <= 0 then
+        Step = nil
+    end
+
 	local Card, Label, Description, settings = Utility.ElementBase(Fancy, container, settings)
 	Label.Size = UDim2.new(1, -100, 0, Label.Size.Y.Offset)
 	if Description then
@@ -89,21 +94,24 @@ function Slider:Create(Fancy, container, settings)
 		ValueLabel.Text = formatNumber(value)
 	end
 
-	function Slider:Set(newValue, silent)
-		newValue = tonumber(newValue) or value
-		newValue = math.clamp(newValue, Min, Max)
-		if Precision <= 0 then
-			newValue = math.floor(newValue + 0.5)
-		else
-			local factor = 10 ^ Precision
-			newValue = math.floor(newValue * factor + 0.5) / factor
-		end
-		value = newValue
-		render()
-		if not silent then
-			Utility.SafeCallback(settings.Callback, value)
-		end
-	end
+    function Slider:Set(newValue, silent)
+        newValue = tonumber(newValue) or value
+        if Step then
+            newValue = Min + math.floor((newValue - Min) / Step + 0.5) * Step
+        end
+        newValue = math.clamp(newValue, Min, Max)
+        if Precision <= 0 then
+            newValue = math.floor(newValue + 0.5)
+        else
+            local factor = 10 ^ Precision
+            newValue = math.floor(newValue * factor + 0.5) / factor
+        end
+        value = newValue
+        render()
+        if not silent then
+            Utility.SafeCallback(settings.Callback, value)
+        end
+    end
 
 	function Slider:Get()
 		return value
