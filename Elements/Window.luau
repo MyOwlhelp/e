@@ -173,29 +173,35 @@ function Window:Create(Fancy, windowSettings, default)
 		Window:ToggleMaximize()
 	end)
 
-	local Logo = Fancy.Modules.Instance:Create("ImageLabel", {
-		Position = UDim2.new(0, 78, 0.5, -9),
-		Size = UDim2.fromOffset(18, 18),
-		BackgroundTransparency = 1,
-		Image = Icons.Get(windowSettings.Icon or "sparkles"),
-		ImageColor3 = Theme.Accent,
-		Parent = Topbar,
-	})
-	Logo:SetAttribute("FancyImage", "Accent")
+    -- traffic lights end at LIGHTS_X + 2 * LIGHT_PITCH + LIGHT_SIZE = 66,
+    -- so content starts at 78
+    local hasIcon = typeof(windowSettings.Icon) == "string" and #windowSettings.Icon > 0
 
-	local Title = Fancy.Modules.Instance:Create("TextLabel", {
-		Position = UDim2.new(0, 104, 0.5, -9),
-		Size = UDim2.new(0, 240, 0, 18),
-		BackgroundTransparency = 1,
-		Font = Theme.TitleFont,
-		Text = windowSettings.Title or default.Title or "Fancy UI",
-		TextSize = 14,
-		TextColor3 = Theme.Text,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextTruncate = Enum.TextTruncate.AtEnd,
-		Parent = Topbar,
-	})
-	Title:SetAttribute("FancyText", "Text")
+    local Logo = Fancy.Modules.Instance:Create("ImageLabel", {
+        Name = "Logo",
+        Position = UDim2.new(0, 78, 0.5, -9),
+        Size = UDim2.fromOffset(18, 18),
+        BackgroundTransparency = 1,
+        Image = Icons.Get(windowSettings.Icon or "sparkles"),
+        ImageColor3 = Theme.Accent,
+        Visible = hasIcon,
+        Parent = Topbar
+    })
+    Logo:SetAttribute("FancyImage", "Accent")
+
+    local Title = Fancy.Modules.Instance:Create("TextLabel", {
+        Position = UDim2.new(0, hasIcon and 104 or 78, 0.5, -9),
+        Size = UDim2.new(0, hasIcon and 240 or 266, 0, 18),
+        BackgroundTransparency = 1,
+        Font = Theme.TitleFont,
+        Text = windowSettings.Title or default.Title or "Fancy UI",
+        TextSize = 14,
+        TextColor3 = Theme.Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        Parent = Topbar
+    })
+    Title:SetAttribute("FancyText", "Text")
 
 	local PageTitle = Fancy.Modules.Instance:Create("TextLabel", {
 		AnchorPoint = Vector2.new(1, 0.5),
@@ -422,6 +428,18 @@ function Window:Create(Fancy, windowSettings, default)
 		end
 		Title.Text = text
 	end
+
+    function Window:SetIcon(name)
+        if typeof(name) == "string" and #name > 0 then
+            Logo.Image = Icons.Get(name)
+            Logo.Visible = true
+        else
+            Logo.Visible = false -- nil removes the icon
+        end
+        Utility.Tween(Title, 0.15, {
+            Position = UDim2.new(0, Logo.Visible and 104 or 78, 0.5, -9),
+        })
+    end
 
 	function Window:NewTab(settings)
 		return Fancy.Elements.Tab:Create(Fancy, settings)
