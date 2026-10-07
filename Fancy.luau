@@ -2,7 +2,7 @@
     Fancy UI Library
 
     10/7/2026
-    1:44 AM
+    1:59 AM
     GMT+7
 ]]
 
@@ -223,6 +223,8 @@ return function(url)
         DisplayOrder = 1000,
         Parent = HiddenUI
     })
+
+    Fancy.NotifyLayer = Fancy.TopbarUI or Fancy.MainUI
 
     if not Fancy.MainUI then
         warn("[Fancy] Failed to create the ScreenGui")
