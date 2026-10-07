@@ -2,7 +2,7 @@
     Fancy UI Library
 
     10/7/2026
-    8:43 AM
+    7:07 PM
     GMT+7
 ]]
 
@@ -186,11 +186,19 @@ return function(url)
         return nil
     end
 
-    if HiddenUI and HiddenUI:FindFirstChild("FancyUI") then
-        pcall(function()
-            HiddenUI:FindFirstChild("FancyUI"):Destroy()
-        end)
+    if HiddenUI then
+        if HiddenUI:FindFirstChild("FancyUI") then
+            pcall(function()
+                HiddenUI.FancyUI:Destroy()
+            end)
+        end
+        if HiddenUI:FindFirstChild("FancyTopbars") then
+            pcall(function()
+                HiddenUI.FancyTopbars:Destroy()
+            end)
+        end
     end
+
     Fancy.Window = nil
     Fancy.WindowAPI = nil
     Fancy.Refs = nil
@@ -204,6 +212,15 @@ return function(url)
         IgnoreGuiInset = true,
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         DisplayOrder = 999,
+        Parent = HiddenUI
+    })
+
+    Fancy.TopbarUI = Fancy.Modules.Instance:Create("ScreenGui", {
+        Name = "FancyTopbars",
+        ResetOnSpawn = false,
+        IgnoreGuiInset = true,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+        DisplayOrder = 1000,
         Parent = HiddenUI
     })
 
@@ -250,12 +267,15 @@ return function(url)
     end
 
     function Main:Destroy()
-        if Fancy.MainUI then
-            pcall(function()
-                Fancy.MainUI:Destroy()
-            end)
+        for _, gui in { Fancy.MainUI, Fancy.TopbarUI } do
+            if gui then
+                pcall(function()
+                    gui:Destroy()
+                end)
+            end
         end
         Fancy.MainUI = nil
+        Fancy.TopbarUI = nil
         Fancy.Window = nil
         Fancy.WindowAPI = nil
         Fancy.Refs = nil
