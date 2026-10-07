@@ -12,6 +12,9 @@ function Notifications.Send(Fancy, props)
 	if not Fancy or not Fancy.MainUI then return end
 	props = typeof(props) == "table" and props or {}
 
+	local host = Fancy.NotifyLayer or Fancy.MainUI
+    if not host then return end
+
 	local Theme = Fancy.Theme or (Fancy.Themes and Fancy.Themes.Default)
 	if not Theme then return end
 	
@@ -41,17 +44,17 @@ function Notifications.Send(Fancy, props)
 		return nil
 	end
 
-	local holder = Fancy.MainUI:FindFirstChild("FancyNotifications")
-	if not holder then
-		holder = Instance.new("Frame")
-		holder.Name = "FancyNotifications"
-		holder.AnchorPoint = Vector2.new(1, 0)
-		holder.Position = UDim2.new(1, -16, 0, 16)
-		holder.Size = UDim2.new(0, 300, 1, -32)
-		holder.BackgroundTransparency = 1
-		holder.ClipsDescendants = true
-		holder.ZIndex = 50
-		holder.Parent = Fancy.MainUI
+    local holder = host:FindFirstChild("FancyNotifications")
+    if not holder then
+        holder = Instance.new("Frame")
+        holder.Name = "FancyNotifications"
+        holder.AnchorPoint = Vector2.new(1, 0)
+        holder.Position = UDim2.new(1, -16, 0, 16)
+        holder.Size = UDim2.new(0, 300, 1, -32)
+        holder.BackgroundTransparency = 1
+        holder.ClipsDescendants = true
+        holder.ZIndex = 50
+        holder.Parent = host
 
 		local layout = Instance.new("UIListLayout")
 		layout.Padding = UDim.new(0, 8)
