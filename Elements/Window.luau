@@ -511,16 +511,45 @@ function Window:Create(Fancy, windowSettings, default)
 		Utility.ApplyTheme(Main, theme)
 	end
 
-	function Window:Destroy()
-		for _, connection in connections do
-			connection:Disconnect()
-		end
-		table.clear(connections)
+    local unloadHandlers = {}
+    function Window:OnUnload(callback)
+        if typeof(callback) ~= "function" then
+            warn("[Fancy] OnUnload requires a function")
+            return nil
+        end
+        table.insert(unloadHandlers, callback)
+        return function()
+            local index = table.find(unloadHandlers, callback)
+            if index then
+                table.remove(unloadHandlers, index)
+            end
+        end
+    end
+
+    local function fireUnload()
+        if #unloadHandlers == 0 then return end
+        local handlers = table.clone(unloadHandlers)
+        table.clear(unloadHandlers)
+        for _, handler in handlers do
+            local ok, err = pcall(handler)
+            if not ok then
+                warn("[Fancy] OnUnload handler error: " .. tostring(err))
+            end
+        end
+    end
+
+    function Window:Destroy()
+        fireUnload() -- user cleanup runs first, while state still exists
+
+        for _, connection in connections do
+            connection:Disconnect()
+        end
+        table.clear(connections)
 
         if Fancy.Topbars then
             for i = #Fancy.Topbars, 1, -1 do
                 local bar = Fancy.Topbars[i]
-                if bar.Persistent == false then
+                if bar.Persistent ~= true then
                     pcall(function()
                         bar:Destroy()
                     end)
@@ -528,21 +557,21 @@ function Window:Create(Fancy, windowSettings, default)
             end
         end
 
-		Utility.Tween(Scale, 0.15, { Scale = 0.97 }, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
-		if Shadow then
-			Utility.Tween(Shadow, 0.15, { ImageTransparency = 1 })
-		end
+        Utility.Tween(Scale, 0.15, { Scale = 0.97 }, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+        if Shadow then
+            Utility.Tween(Shadow, 0.15, { ImageTransparency = 1 })
+        end
 
-		task.delay(0.16, function()
-			Main:Destroy()
-		end)
+        task.delay(0.16, function()
+            Main:Destroy()
+        end)
 
-		Fancy.Window = nil
-		Fancy.WindowAPI = nil
-		Fancy.Refs = nil
-		Fancy.Tabs = {}
-		Fancy.SelectedTab = nil
-	end
+        Fancy.Window = nil
+        Fancy.WindowAPI = nil
+        Fancy.Refs = nil
+        Fancy.Tabs = {}
+        Fancy.SelectedTab = nil
+    end
 
 	if Resizeable then
 		Grip = Fancy.Modules.Instance:Create("TextButton", {
