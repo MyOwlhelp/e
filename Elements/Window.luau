@@ -499,14 +499,16 @@ function Window:Create(Fancy, windowSettings, default)
 		end
 		table.clear(connections)
 
-		if Fancy.Topbars then
-			for i = #Fancy.Topbars, 1, -1 do
-				pcall(function()
-					Fancy.Topbars[i]:Destroy()
-				end)
-			end
-			table.clear(Fancy.Topbars)
-		end
+        if Fancy.Topbars then
+            for i = #Fancy.Topbars, 1, -1 do
+                local bar = Fancy.Topbars[i]
+                if bar.Persistent == false then
+                    pcall(function()
+                        bar:Destroy()
+                    end)
+                end
+            end
+        end
 
 		Utility.Tween(Scale, 0.15, { Scale = 0.97 }, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
 		if Shadow then
