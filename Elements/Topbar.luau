@@ -114,7 +114,7 @@ function Topbar:Create(Fancy, settings)
     Topbar.Instance = Pill
     Topbar.Height = Height
     Topbar.Dragged = false
-    Topbar.Persistent = settings.Persistent ~= false
+    Topbar.Persistent = settings.Persistent == false
 
 	local connections = {}
 	local dragging = false
