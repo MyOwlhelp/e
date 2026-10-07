@@ -20,7 +20,7 @@ function Keybind:Create(Fancy, container, settings)
         BackgroundColor3 = Fancy.Theme.Secondary[1],
         BackgroundTransparency = 0.2,
         Font = Fancy.Theme.Font,
-        Text = key and key.Name or "None",,
+        Text = key and key.Name or "None",
         TextSize = 12,
         TextColor3 = Fancy.Theme.SubText,
         AutoButtonColor = false,
