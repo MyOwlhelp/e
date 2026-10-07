@@ -14,8 +14,9 @@ local function Reflow(Fancy)
 end
 
 function Topbar:Create(Fancy, settings)
-	if not Fancy.MainUI then return nil end
-	settings = typeof(settings) == "table" and settings or {}
+    local Host = Fancy.TopbarUI or Fancy.MainUI
+    if not Host then return nil end
+    settings = typeof(settings) == "table" and settings or {}
 
 	local Utility = Fancy.Modules.Utility
 	local Icons = Fancy.Modules.Icons
@@ -37,9 +38,9 @@ function Topbar:Create(Fancy, settings)
 		BackgroundColor3 = Theme.Primary,
 		BackgroundTransparency = 0.08,
 		BorderSizePixel = 0,
-		ZIndex = 10,
-		Parent = Fancy.MainUI,
-	})
+        ZIndex = 10,
+        Parent = Host
+    })
 	Pill:SetAttribute("FancyBackground", "Primary")
 
 	Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Pill })
@@ -109,10 +110,11 @@ function Topbar:Create(Fancy, settings)
 	})
 	Label:SetAttribute("FancyText", "Text")
 
-	local Topbar = {}
-	Topbar.Instance = Pill
-	Topbar.Height = Height
-	Topbar.Dragged = false
+    local Topbar = {}
+    Topbar.Instance = Pill
+    Topbar.Height = Height
+    Topbar.Dragged = false
+    Topbar.Persistent = settings.Persistent ~= false
 
 	local connections = {}
 	local dragging = false
