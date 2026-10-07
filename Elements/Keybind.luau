@@ -1,7 +1,6 @@
 local Keybind = {}
 function Keybind:Create(Fancy, container, settings)
     local Utility = Fancy.Modules.Utility
-    local Create = Fancy.Modules.Instance.Create
     local UserInputService = Fancy.Services.UserInputService
 
     local Card, Label, Description, settings = Utility.ElementBase(Fancy, container, settings)
@@ -9,14 +8,19 @@ function Keybind:Create(Fancy, container, settings)
         Description.Size = UDim2.new(1, -80, 0, 14)
     end
 
-    local Chip = Create("TextButton", {
+    local key = settings.Default
+    if typeof(key) == "string" then
+        key = Enum.KeyCode[key]
+    end
+
+    local Chip = Fancy.Modules.Instance:Create("TextButton", {
         AnchorPoint = Vector2.new(1, 0.5),
         Position = UDim2.new(1, -10, 0.5, 0),
         Size = UDim2.fromOffset(64, 24),
         BackgroundColor3 = Fancy.Theme.Secondary[1],
         BackgroundTransparency = 0.2,
         Font = Fancy.Theme.Font,
-        Text = settings.Default and settings.Default.Name or "None",
+        Text = key and key.Name or "None",,
         TextSize = 12,
         TextColor3 = Fancy.Theme.SubText,
         AutoButtonColor = false,
@@ -25,10 +29,9 @@ function Keybind:Create(Fancy, container, settings)
     })
     Chip:SetAttribute("FancyBackground", "Secondary.1")
     Chip:SetAttribute("FancyText", "SubText")
-    Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = Chip })
+    Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = Chip })
 
     local Keybind = {}
-    local key = settings.Default
     local listening = false
     local held = {} -- KeyCode -> true while physically held down
 
