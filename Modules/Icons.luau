@@ -1667,13 +1667,31 @@ Icons.Aliases = {
 Icons.Fallback = Icons.Icons["circle"]
 
 function Icons.Get(name)
-	if typeof(name) ~= "string" then return Icons.Fallback end
-	local key = Icons.Aliases[name] or name
-	return Icons.Icons[key] or Icons.Fallback
+    if typeof(name) ~= "string" or #name == 0 then
+        return Icons.Fallback
+    end
+
+    if string.find(name, "rbxassetid://", 1, true)
+        or string.find(name, "rbxasset://", 1, true) then
+        return name
+    end
+
+    if name:match("^%d+$") then
+        return "rbxassetid://" .. name
+    end
+
+    local key = Icons.Aliases[name] or name
+    return Icons.Icons[key] or Icons.Fallback
 end
 
 function Icons.Exists(name)
-	return typeof(name) == "string" and (Icons.Icons[name] ~= nil or Icons.Aliases[name] ~= nil)
+    if typeof(name) ~= "string" then return false end
+    if string.find(name, "rbxassetid://", 1, true)
+        or string.find(name, "rbxasset://", 1, true)
+        or name:match("^%d+$") then
+        return true
+    end
+    return Icons.Icons[name] ~= nil or Icons.Aliases[name] ~= nil
 end
 
 return Icons
