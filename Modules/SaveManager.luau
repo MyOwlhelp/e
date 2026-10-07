@@ -1,8 +1,8 @@
 --[[
     Fancy SaveManager
 
-    10/7/2026
-    7:22 AM
+    10/8/2026
+    1:26 AM
     GMT+7
 ]]
 
@@ -174,14 +174,13 @@ function SaveManager:Initialize(RealFancy)
 end
 
 function SaveManager.Register(flag, api)
-	if typeof(flag) ~= "string" or #flag == 0 then
-		warn("[Fancy] SaveManager.Register: flag must be a non-empty string")
-		return
-	end
-	if typeof(api) ~= "table" or typeof(api.Get) ~= "function" or typeof(api.Set) ~= "function" then
-		warn(("[Fancy] SaveManager.Register('%s'): api needs Get and Set functions"):format(flag))
-		return
-	end
+    if flag == nil then
+        return
+    end
+    if typeof(flag) ~= "string" or #flag == 0 then
+        warn("[Fancy] SaveManager.Register: flag must be a non-empty string")
+        return
+    end
 
 	if Registry[flag] then
 		warn(("[Fancy] SaveManager: flag '%s' registered twice keeping the newest element"):format(flag))
