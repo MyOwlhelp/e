@@ -2,7 +2,7 @@
     Fancy UI Library
 
     10/7/2026
-    7:07 PM
+    1:44 AM
     GMT+7
 ]]
 
@@ -267,6 +267,11 @@ return function(url)
     end
 
     function Main:Destroy()
+        if Fancy.WindowAPI then
+            pcall(function()
+                Fancy.WindowAPI:Destroy()
+            end)
+        end
         for _, gui in { Fancy.MainUI, Fancy.TopbarUI } do
             if gui then
                 pcall(function()
