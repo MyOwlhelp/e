@@ -2,7 +2,7 @@ local Button = {}
 function Button:Create(Fancy, container, settings)
 	local Utility = Fancy.Modules.Utility
 	local Icons = Fancy.Modules.Icons
-	local Card, Label, Description, settings = Utility.ElementBase(Fancy, container, settings)
+    local Card, Label, Description, settings, Hover = Utility.ElementBase(Fancy, container, settings)
 
 	local Icon
 	if settings.Icon then
@@ -43,13 +43,13 @@ function Button:Create(Fancy, container, settings)
 		end
 	end)
 	
-	Click.MouseButton1Down:Connect(function()
-		Utility.Tween(Card, 0.08, { BackgroundTransparency = 0.05 })
-	end)
+    Click.MouseButton1Down:Connect(function()
+        Utility.Tween(Hover, 0.06, { BackgroundTransparency = 0.93 })
+    end)
 	
-	Click.MouseButton1Up:Connect(function()
-		Utility.Tween(Card, 0.12, { BackgroundTransparency = 0.15 })
-	end)
+    Click.MouseButton1Up:Connect(function()
+        Utility.Tween(Hover, 0.12, { BackgroundTransparency = 0.965 })
+    end)
 	
 	Click.Activated:Connect(function()
 		Utility.SafeCallback(settings.Callback)
