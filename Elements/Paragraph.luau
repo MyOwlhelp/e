@@ -7,7 +7,7 @@ function Paragraph:Create(Fancy, container, settings)
 		Size = UDim2.new(1, 0, 0, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
 		BackgroundColor3 = Fancy.Theme.Secondary[2],
-		BackgroundTransparency = 0.35,
+		BackgroundTransparency = 0,
 		BorderSizePixel = 0,
 		Parent = container,
 	})
