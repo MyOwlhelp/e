@@ -121,62 +121,80 @@ function Utility.ApplyTheme(root, theme)
 end
 
 function Utility.ElementBase(Fancy, container, settings)
-	local Theme = Fancy.Theme
-	settings = typeof(settings) == "table" and settings or {}
+    local Theme = Fancy.Theme
+    settings = typeof(settings) == "table" and settings or {}
 
-	local hasDescription = typeof(settings.Description) == "string" and settings.Description ~= ""
-	local height = settings.Height or (hasDescription and 52 or 34)
+    local hasDescription = typeof(settings.Description) == "string" and settings.Description ~= ""
+    local height = settings.Height or (hasDescription and 50 or 32)
 
-	local Card = Fancy.Modules.Instance:Create("Frame", {
-		Name = tostring(settings.Name or settings.Title or "Element"),
-		Size = UDim2.new(1, 0, 0, height),
-		BackgroundColor3 = Theme.Secondary[2],
-		BackgroundTransparency = 0.35,
-		BorderSizePixel = 0,
-		Parent = container,
-	})
-	Card:SetAttribute("FancyBackground", "Secondary.2")
-	Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = Card })
+    local Card = Fancy.Modules.Instance:Create("Frame", {
+        Name = tostring(settings.Name or settings.Title or "Element"),
+        Size = UDim2.new(1, 0, 0, height),
+        BackgroundColor3 = Theme.Secondary[2],
+        BorderSizePixel = 0,
+        ClipsDescendants = true,
+        Parent = container,
+    })
+    Card:SetAttribute("FancyBackground", "Secondary.2")
+    Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = Card })
 
-	local stroke = Fancy.Modules.Instance:Create("UIStroke", {
-		Color = Theme.Stroke,
-		Transparency = Theme.StrokeTransparency or 0.92,
-		Parent = Card,
-	})
-	stroke:SetAttribute("FancyStroke", "Stroke")
+    local stroke = Fancy.Modules.Instance:Create("UIStroke", {
+        Color = Theme.Stroke,
+        Transparency = math.min((Theme.StrokeTransparency or 0.92) + 0.02, 1),
+        Parent = Card,
+    })
+    stroke:SetAttribute("FancyStroke", "Stroke")
 
-	local Label = Fancy.Modules.Instance:Create("TextLabel", {
-		Position = UDim2.new(0, 10, 0, hasDescription and 8 or 0),
-		Size = UDim2.new(1, -20, 0, hasDescription and 14 or height),
-		BackgroundTransparency = 1,
-		Font = Theme.Font,
-		Text = tostring(settings.Name or settings.Title or "Element"),
-		TextSize = 13,
-		TextColor3 = Theme.Text,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextTruncate = Enum.TextTruncate.AtEnd,
-		Parent = Card,
-	})
-	Label:SetAttribute("FancyText", "Text")
+    local Hover = Fancy.Modules.Instance:Create("Frame", {
+        Name = "HoverWash",
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundColor3 = Theme.Stroke,
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Parent = Card,
+    })
+    Hover:SetAttribute("FancyBackground", "Stroke")
+    Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = Hover })
 
-	local Description
-	if hasDescription then
-		Description = Fancy.Modules.Instance:Create("TextLabel", {
-			Position = UDim2.new(0, 10, 0, 24),
-			Size = UDim2.new(1, -20, 0, 14),
-			BackgroundTransparency = 1,
-			Font = Theme.Font,
-			Text = settings.Description,
-			TextSize = 11,
-			TextColor3 = Theme.SubText,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextTruncate = Enum.TextTruncate.AtEnd,
-			Parent = Card,
-		})
-		Description:SetAttribute("FancyText", "SubText")
-	end
+    Card.MouseEnter:Connect(function()
+        Utility.Tween(Hover, 0.12, { BackgroundTransparency = 0.965 })
+    end)
+    Card.MouseLeave:Connect(function()
+        Utility.Tween(Hover, 0.18, { BackgroundTransparency = 1 })
+    end)
 
-	return Card, Label, Description, settings
+    local Label = Fancy.Modules.Instance:Create("TextLabel", {
+        Position = UDim2.new(0, 10, 0, hasDescription and 8 or 0),
+        Size = UDim2.new(1, -20, 0, hasDescription and 14 or height),
+        BackgroundTransparency = 1,
+        Font = Theme.Font,
+        Text = tostring(settings.Name or settings.Title or "Element"),
+        TextSize = 13,
+        TextColor3 = Theme.Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        Parent = Card,
+    })
+    Label:SetAttribute("FancyText", "Text")
+
+    local Description
+    if hasDescription then
+        Description = Fancy.Modules.Instance:Create("TextLabel", {
+            Position = UDim2.new(0, 10, 0, 26),
+            Size = UDim2.new(1, -20, 0, 13),
+            BackgroundTransparency = 1,
+            Font = Theme.Font,
+            Text = settings.Description,
+            TextSize = 11,
+            TextColor3 = Theme.SubText,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextTruncate = Enum.TextTruncate.AtEnd,
+            Parent = Card,
+        })
+        Description:SetAttribute("FancyText", "SubText")
+    end
+
+    return Card, Label, Description, settings, Hover
 end
 
 function Utility.MakeDraggable(handle, target, canDrag)
