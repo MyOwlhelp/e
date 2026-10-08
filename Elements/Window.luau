@@ -27,8 +27,33 @@ function Window:Create(Fancy, windowSettings, default)
 		Resizeable = true
 	end
 
-	local Size = Utility.ResolveSize(windowSettings.Size or default.Size, 691, 457)
-	local MinSize = windowSettings.MinSize or default.MinSize or Vector2.new(540, 350)
+    local UserInputService = Fancy.Services.UserInputService
+    local isMobile = UserInputService.TouchEnabled and not UserInputService.MouseEnabled and not UserInputService.KeyboardEnabled
+    
+	local function getViewport()
+        local camera = Fancy.Services.Workspace.CurrentCamera
+        return camera and camera.ViewportSize or Vector2.new(1920, 1080)
+    end
+
+    local MARGIN = isMobile and 8 or 24
+    local SidebarWidth = isMobile and 148 or 178
+
+    local viewport = getViewport()
+    local availX = math.max(viewport.X - MARGIN * 2, 200)
+    local availY = math.max(viewport.Y - MARGIN * 2, 150)
+
+    local Size = Utility.ResolveSize(windowSettings.Size or default.Size, 691, 457)
+    if isMobile and windowSettings.Size == nil then
+        Size = UDim2.fromOffset(math.floor(availX * 0.96), math.floor(availY * 0.92))
+    end
+
+    local width = math.min(Size.X.Offset, availX)
+    local height = math.min(Size.Y.Offset, availY)
+    Size = UDim2.fromOffset(width, height)
+
+    local MinSize = windowSettings.MinSize or default.MinSize or Vector2.new(540, 350)
+    local effMinX = math.min(MinSize.X, availX)
+    local effMinY = math.min(MinSize.Y, availY)
 
 	local Main = Fancy.Modules.Instance:Create("Frame", {
 		Name = "Window",
@@ -265,7 +290,7 @@ function Window:Create(Fancy, windowSettings, default)
 
 	local Sidebar = Fancy.Modules.Instance:Create("Frame", {
 		Name = "Sidebar",
-		Size = UDim2.new(0, 178, 1, 0),
+		Size = UDim2.new(0, SidebarWidth, 1, 0),
 		BackgroundColor3 = Theme.Secondary[1],
 		BorderSizePixel = 0,
 		Parent = Body,
@@ -474,8 +499,8 @@ function Window:Create(Fancy, windowSettings, default)
 
 	local Content = Fancy.Modules.Instance:Create("Frame", {
 		Name = "Content",
-		Position = UDim2.new(0, 178, 0, 0),
-		Size = UDim2.new(1, -178, 1, 0),
+		Position = UDim2.new(0, SidebarWidth, 0, 0),
+		Size = UDim2.new(1, -SidebarWidth, 1, 0),
 		BackgroundTransparency = 1,
 		Parent = Body,
 	})
@@ -761,15 +786,28 @@ function Window:Create(Fancy, windowSettings, default)
 		table.insert(connections, Fancy.Services.UserInputService.InputChanged:Connect(function(input)
 			if not resizing or collapsed or maximized then return end
 			if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-				local camera = Fancy.Services.Workspace.CurrentCamera
-				local viewport = camera and camera.ViewportSize or Vector2.new(1920, 1080)
 				local delta = input.Position - startInput
-				local width = math.clamp(startSize.X + delta.X, MinSize.X, viewport.X - 24)
-				local height = math.clamp(startSize.Y + delta.Y, MinSize.Y, viewport.Y - 24)
+                local vp = getViewport()
+                local ax = math.max(vp.X - MARGIN * 2, effMinX)
+                local ay = math.max(vp.Y - MARGIN * 2, effMinY)
+                local width = math.clamp(startSize.X + delta.X, effMinX, ax)
+                local height = math.clamp(startSize.Y + delta.Y, effMinY, ay)
 				Main.Size = UDim2.fromOffset(width, height)
 				fullSize = Vector2.new(width, height)
 			end
 		end))
+
+	    table.insert(connections, Fancy.Services.Workspace.CurrentCamera and Fancy.Services.Workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+            if collapsed then return end
+            local vp = getViewport()
+            local ax = vp.X - MARGIN * 2
+            local ay = vp.Y - MARGIN * 2
+            local w, h = Main.AbsoluteSize.X, Main.AbsoluteSize.Y
+            if w > ax or h > ay then
+                Main.Size = UDim2.fromOffset(math.min(w, ax), math.min(h, ay))
+                fullSize = Vector2.new(Main.AbsoluteSize.X, Main.AbsoluteSize.Y)
+            end
+        end))
 	end
 
 	if windowSettings.ToggleKey then
