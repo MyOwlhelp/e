@@ -67,7 +67,7 @@ function Notifications.Send(Fancy, props)
 	
 	local Toast = Instance.new("Frame")
 	Toast.Name = "Toast"
-	Toast.Size = UDim2.new(1, 0, 0, 64)
+	Toast.Size = UDim2.new(1, 0, 0, 58)
 	Toast.LayoutOrder = notificationOrder
 	Toast.BackgroundTransparency = 1
 	Toast.Parent = holder
@@ -102,28 +102,28 @@ function Notifications.Send(Fancy, props)
 	barCorner.Parent = bar
 
 	local icon = Instance.new("ImageLabel")
-	icon.Position = UDim2.new(0, 20, 0, 23)
-	icon.Size = UDim2.fromOffset(18, 18)
+	icon.Position = UDim2.new(0, 20, 0, 21)
+	icon.Size = UDim2.fromOffset(16, 16)
 	icon.BackgroundTransparency = 1
 	icon.Image = resolveIcon(props.Icon) or resolveIcon(typeIcons[kind]) or "rbxassetid://124560466474914"
 	icon.ImageColor3 = color
 	icon.Parent = Card
 
 	local title = Instance.new("TextLabel")
-	title.Position = UDim2.new(0, 48, 0, 14)
-	title.Size = UDim2.new(1, -58, 0, 15)
+	title.Position = UDim2.new(0, 44, 0, 12)
+	title.Size = UDim2.new(1, -54, 0, 14)
 	title.BackgroundTransparency = 1
 	title.Font = Theme.TitleFont
 	title.Text = props.Title or "Notification"
-	title.TextSize = 13
+	title.TextSize = 12
 	title.TextColor3 = Theme.Text
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.TextTruncate = Enum.TextTruncate.AtEnd
 	title.Parent = Card
 
 	local text = Instance.new("TextLabel")
-	text.Position = UDim2.new(0, 48, 0, 31)
-	text.Size = UDim2.new(1, -58, 0, 22)
+	text.Position = UDim2.new(0, 44, 0, 28)
+	text.Size = UDim2.new(1, -54, 0, 24)
 	text.BackgroundTransparency = 1
 	text.Font = Theme.Font
 	text.Text = props.Text or props.Content or ""
