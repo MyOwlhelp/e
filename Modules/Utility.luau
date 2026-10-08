@@ -198,44 +198,59 @@ function Utility.ElementBase(Fancy, container, settings)
 end
 
 function Utility.MakeDraggable(handle, target, canDrag)
-	if not handle or not target then return end
+    if not handle or not target then return end
 
-	local dragging = false
-	local dragStart, startPos
+    local DRAG_DEADZONE = 4
 
-	handle.InputBegan:Connect(function(input)
-		if target.Parent == nil then return end
-		if canDrag and not canDrag() then return end
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			startPos = target.Position
-		end
-	end)
+    local dragging = false
+    local dragStart, startPos
 
-	local endedConnection
-	local changedConnection
+    handle.InputBegan:Connect(function(input)
+        if target.Parent == nil then return end
+        if canDrag and not canDrag() then return end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = target.Position
+        end
+    end)
 
-	endedConnection = UserInputService.InputEnded:Connect(function(input)
-		if target.Parent == nil then
-			endedConnection:Disconnect()
-			changedConnection:Disconnect()
-			return
-		end
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = false
-		end
-	end)
+    local endedConnection
+    local changedConnection
 
-	changedConnection = UserInputService.InputChanged:Connect(function(input)
-		if not dragging then return end
-		if target.Parent == nil then
-			endedConnection:Disconnect()
-			changedConnection:Disconnect()
-			return
-		end
+    local function disconnect()
+        endedConnection:Disconnect()
+        changedConnection:Disconnect()
+    end
+
+    endedConnection = UserInputService.InputEnded:Connect(function(input)
+        if target.Parent == nil then
+            disconnect()
+            return
+        end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    UserInputService.TouchEnded:Connect(function(touch, processed)
+        if dragging and touch.UserInputState == Enum.UserInputState.Cancel then
+            dragging = false
+        end
+    end)
+
+    changedConnection = UserInputService.InputChanged:Connect(function(input)
+        if not dragging then return end
+        if target.Parent == nil then
+            disconnect()
+            return
+        end
         if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             local delta = input.Position - dragStart
+            if math.abs(delta.X) < DRAG_DEADZONE and math.abs(delta.Y) < DRAG_DEADZONE then
+                return
+            end
+
             local abs = target.AbsolutePosition
             local size = target.AbsoluteSize
             local vp = Workspace.CurrentCamera and Workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
@@ -249,7 +264,7 @@ function Utility.MakeDraggable(handle, target, canDrag)
 
             target.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + dx, startPos.Y.Scale, startPos.Y.Offset + dy)
         end
-	end)
+    end)
 end
 
 local ENCODE_CHARS = buffer.fromstring("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/")
