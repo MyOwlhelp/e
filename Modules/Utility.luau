@@ -234,10 +234,21 @@ function Utility.MakeDraggable(handle, target, canDrag)
 			changedConnection:Disconnect()
 			return
 		end
-		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-			local delta = input.Position - dragStart
-			target.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-		end
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            local delta = input.Position - dragStart
+            local abs = target.AbsolutePosition
+            local size = target.AbsoluteSize
+            local vp = Workspace.CurrentCamera and Workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
+            local visible = 60
+
+            local dx, dy = delta.X, delta.Y
+            if abs.X + dx < -(size.X - visible) then dx = -(size.X - visible) - abs.X end
+            if abs.X + dx > vp.X - visible then dx = (vp.X - visible) - abs.X end
+            if abs.Y + dy < -(size.Y - visible) then dy = -(size.Y - visible) - abs.Y end
+            if abs.Y + dy > vp.Y - visible then dy = (vp.Y - visible) - abs.Y end
+
+            target.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + dx, startPos.Y.Scale, startPos.Y.Offset + dy)
+        end
 	end)
 end
 
