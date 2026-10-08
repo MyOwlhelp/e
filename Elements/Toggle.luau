@@ -14,25 +14,26 @@ function Toggle:Create(Fancy, container, settings)
 		Parent = Card,
 	})
 
-	local Track = Fancy.Modules.Instance:Create("Frame", {
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -10, 0.5, 0),
-		Size = UDim2.fromOffset(40, 20),
-		BackgroundColor3 = Fancy.Theme.Secondary[1],
-		BackgroundTransparency = 0.2,
-		BorderSizePixel = 0,
-		Parent = Card,
-	})
-	Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Track })
+    local Track = Fancy.Modules.Instance:Create("Frame", {
+        AnchorPoint = Vector2.new(1, 0.5),
+        Position = UDim2.new(1, -10, 0.5, 0),
+        Size = UDim2.fromOffset(36, 18),
+        BackgroundColor3 = Fancy.Theme.Secondary[1],
+        BackgroundTransparency = 0.2,
+        BorderSizePixel = 0,
+        Parent = Card,
+    })
+    Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Track })
 
-	local Knob = Fancy.Modules.Instance:Create("Frame", {
-		Position = UDim2.new(0, 2, 0.5, -8),
-		Size = UDim2.fromOffset(16, 16),
-		BackgroundColor3 = Color3.new(1, 1, 1),
-		BorderSizePixel = 0,
-		Parent = Track,
-	})
-	Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Knob })
+    local Knob = Fancy.Modules.Instance:Create("Frame", {
+        Position = UDim2.new(0, 2, 0.5, -7),
+        Size = UDim2.fromOffset(14, 14),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BorderSizePixel = 0,
+        Parent = Track,
+    })
+    Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Knob })
+
 	local KnobScale = Fancy.Modules.Instance:Create("UIScale", { Parent = Knob })
 
 	local Toggle = {}
@@ -45,9 +46,9 @@ function Toggle:Create(Fancy, container, settings)
 		Utility.Tween(Track, time, {
 			BackgroundColor3 = state and theme.Accent or theme.Secondary[1],
 		})
-		Utility.Tween(Knob, time, {
-			Position = UDim2.new(0, state and 22 or 2, 0.5, -8),
-		})
+        Utility.Tween(Knob, time, {
+            Position = UDim2.new(0, state and 20 or 2, 0.5, -7),
+        })
 	end
 
 	function Toggle:Set(value, silent)
