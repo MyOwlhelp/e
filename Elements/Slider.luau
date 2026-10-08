@@ -145,6 +145,7 @@ function Slider:Create(Fancy, container, settings)
 	Hitbox.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
+            ValueLabel.TextColor3 = Fancy.Theme.Accent
 			Utility.Tween(KnobScale, 0.1, { Scale = 1.3 })
 			updateFromX(input.Position.X)
 		end
@@ -158,13 +159,14 @@ function Slider:Create(Fancy, container, settings)
 		changedConnection:Disconnect()
 	end
 
-	endedConnection = Fancy.Services.UserInputService.InputEnded:Connect(function(input)
-		if not Card.Parent then disconnect() return end
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = false
-			Utility.Tween(KnobScale, 0.18, { Scale = 1 })
-		end
-	end)
+    endedConnection = Fancy.Services.UserInputService.InputEnded:Connect(function(input)
+        if not Card.Parent then disconnect() return end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+            ValueLabel.TextColor3 = Fancy.Theme.Text
+            Utility.Tween(KnobScale, 0.18, { Scale = 1 })
+        end
+    end)
 
 	changedConnection = Fancy.Services.UserInputService.InputChanged:Connect(function(input)
 		if not dragging then return end
@@ -174,15 +176,17 @@ function Slider:Create(Fancy, container, settings)
 		end
 	end)
 	
-	Fancy.Modules.SaveManager.Register(settings.Flag, {
-		Instance = Card,
-		Get = function()
-			return Slider:Get()
-		end,
-		Set = function(value)
-			Slider:Set(value)
-		end
-	})
+    if settings.Flag then
+        Fancy.Modules.SaveManager.Register(settings.Flag, {
+            Instance = Card,
+            Get = function()
+                return Slider:Get()
+            end,
+            Set = function(value)
+                Slider:Set(value)
+            end,
+        })
+    end
 	
 	Slider:Set(settings.Default or settings.Value or Min, true)
 	Slider.Instance = Card
