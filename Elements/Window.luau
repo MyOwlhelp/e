@@ -70,6 +70,23 @@ function Window:Create(Fancy, windowSettings, default)
 		})
 	end
 
+    local Sheen = Fancy.Modules.Instance:Create("Frame", {
+        Name = "Sheen",
+        Size = UDim2.new(1, 0, 0, 90),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 0,
+        BorderSizePixel = 0,
+        Parent = Main,
+    })
+    Fancy.Modules.Instance:Create("UIGradient", {
+        Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.955),
+            NumberSequenceKeypoint.new(1, 1),
+        }),
+        Rotation = 90,
+        Parent = Sheen,
+    })
+
 	local Topbar = Fancy.Modules.Instance:Create("Frame", {
 		Name = "Topbar",
 		Size = UDim2.new(1, 0, 0, 44),
@@ -218,6 +235,24 @@ function Window:Create(Fancy, windowSettings, default)
 	})
 	PageTitle:SetAttribute("FancyText", "SubText")
 
+    local Version = typeof(windowSettings.Version) == "string" and windowSettings.Version or ""
+    if #Version > 0 then
+        local VersionLabel = Fancy.Modules.Instance:Create("TextLabel", {
+            AnchorPoint = Vector2.new(1, 0),
+            Position = UDim2.new(1, -16, 0, 27),
+            Size = UDim2.new(0, 160, 0, 12),
+            BackgroundTransparency = 1,
+            Font = Theme.Font,
+            Text = Version,
+            TextSize = 10,
+            TextColor3 = Theme.SubText,
+            TextXAlignment = Enum.TextXAlignment.Right,
+            TextTruncate = Enum.TextTruncate.AtEnd,
+            Parent = Topbar,
+        })
+        VersionLabel:SetAttribute("FancyText", "SubText")
+    end
+
 	local Body = Fancy.Modules.Instance:Create("Frame", {
 		Name = "Body",
 		Position = UDim2.new(0, 0, 0, 44),
@@ -249,93 +284,193 @@ function Window:Create(Fancy, windowSettings, default)
 	})
 	Divider:SetAttribute("FancyBackground", "Stroke")
 
-	local TabList = Fancy.Modules.Instance:Create("ScrollingFrame", {
-		Name = "Tabs",
-		Position = UDim2.new(0, 8, 0, 10),
-		Size = UDim2.new(1, -16, 1, -72),
-		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
-		ScrollBarThickness = 2,
-		ScrollBarImageColor3 = Theme.Accent,
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = Enum.AutomaticSize.Y,
-		ScrollingDirection = Enum.ScrollingDirection.Y,
-		Parent = Sidebar,
-	})
-	TabList:SetAttribute("FancyScrollBar", "Accent")
-	Fancy.Modules.Instance:Create("UIListLayout", {
-		Padding = UDim.new(0, 4),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Parent = TabList,
-	})
+    local Search = Fancy.Modules.Instance:Create("TextBox", {
+        Name = "Search",
+        Position = UDim2.new(0, 8, 0, 10),
+        Size = UDim2.new(1, -16, 0, 30),
+        BackgroundColor3 = Theme.Secondary[2],
+        BackgroundTransparency = 0.5,
+        Font = Theme.Font,
+        PlaceholderText = "Search tabs...",
+        Text = "",
+        TextSize = 12,
+        TextColor3 = Theme.Text,
+        PlaceholderColor3 = Theme.SubText,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ClearTextOnFocus = false,
+        BorderSizePixel = 0,
+        Parent = Sidebar,
+    })
+    Search:SetAttribute("FancyBackground", "Secondary.2")
+    Search:SetAttribute("FancyText", "Text")
+    do
+        Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = Search })
+        local searchStroke = Fancy.Modules.Instance:Create("UIStroke", {
+            Color = Theme.Stroke,
+            Transparency = 0.94,
+            Parent = Search,
+        })
+        searchStroke:SetAttribute("FancyStroke", "Stroke")
+        Fancy.Modules.Instance:Create("UIPadding", {
+            PaddingLeft = UDim.new(0, 10),
+            PaddingRight = UDim.new(0, 10),
+            Parent = Search,
+        })
+    end
 
-	local Footer = Fancy.Modules.Instance:Create("Frame", {
-		Name = "User",
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.new(0, 8, 1, -8),
-		Size = UDim2.new(1, -16, 0, 46),
-		BackgroundColor3 = Theme.Secondary[2],
-		BackgroundTransparency = 0.35,
-		BorderSizePixel = 0,
-		Parent = Sidebar,
-	})
-	Footer:SetAttribute("FancyBackground", "Secondary.2")
-	Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = Footer })
+    local NoResults = Fancy.Modules.Instance:Create("TextLabel", {
+        Position = UDim2.new(0, 8, 0, 50),
+        Size = UDim2.new(1, -16, 0, 16),
+        BackgroundTransparency = 1,
+        Font = Theme.Font,
+        Text = "No matching tabs",
+        TextSize = 11,
+        TextColor3 = Theme.SubText,
+        Visible = false,
+        Parent = Sidebar,
+    })
+    NoResults:SetAttribute("FancyText", "SubText")
 
-	local Avatar = Fancy.Modules.Instance:Create("ImageLabel", {
-		Position = UDim2.new(0, 8, 0.5, -14),
-		Size = UDim2.fromOffset(28, 28),
-		BackgroundColor3 = Theme.Secondary[1],
-		BorderSizePixel = 0,
-		Parent = Footer,
-	})
-	Avatar:SetAttribute("FancyBackground", "Secondary.1")
-	Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Avatar })
+    Search:GetPropertyChangedSignal("Text"):Connect(function()
+        local query = string.lower(Search.Text)
+        local visible = 0
+        for _, tab in Fancy.Tabs do
+            if tab.Button and tab.Button.Parent then
+                local match = query == ""
+                    or string.find(string.lower(tostring(tab.Settings.Name or "Tab")), query, 1, true) ~= nil
+                tab.Button.Visible = match
+                if match then visible += 1 end
+            end
+        end
+        NoResults.Visible = query ~= "" and visible == 0
+    end)
 
-	local Username = Fancy.Modules.Instance:Create("TextLabel", {
-		Position = UDim2.new(0, 44, 0, 9),
-		Size = UDim2.new(1, -52, 0, 13),
-		BackgroundTransparency = 1,
-		Font = Theme.TitleFont,
-		Text = "Guest",
-		TextSize = 12,
-		TextColor3 = Theme.Text,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextTruncate = Enum.TextTruncate.AtEnd,
-		Parent = Footer,
-	})
-	Username:SetAttribute("FancyText", "Text")
+    local TabList = Fancy.Modules.Instance:Create("ScrollingFrame", {
+        Name = "Tabs",
+        Position = UDim2.new(0, 8, 0, 48),
+        Size = UDim2.new(1, -16, 1, -116),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ScrollBarThickness = 2,
+        ScrollBarImageColor3 = Theme.Accent,
+        CanvasSize = UDim2.new(),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        ScrollingDirection = Enum.ScrollingDirection.Y,
+        Parent = Sidebar,
+    })
+    TabList:SetAttribute("FancyScrollBar", "Accent")
+    Fancy.Modules.Instance:Create("UIListLayout", {
+        Padding = UDim.new(0, 4),
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Parent = TabList,
+    })
 
-	local Subname = Fancy.Modules.Instance:Create("TextLabel", {
-		Position = UDim2.new(0, 44, 1, -22),
-		Size = UDim2.new(1, -52, 0, 12),
-		BackgroundTransparency = 1,
-		Font = Theme.Font,
-		Text = "@guest",
-		TextSize = 11,
-		TextColor3 = Theme.SubText,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextTruncate = Enum.TextTruncate.AtEnd,
-		Parent = Footer,
-	})
-	Subname:SetAttribute("FancyText", "SubText")
+    local Footer = Fancy.Modules.Instance:Create("Frame", {
+        Name = "User",
+        AnchorPoint = Vector2.new(0, 1),
+        Position = UDim2.new(0, 8, 1, -8),
+        Size = UDim2.new(1, -16, 0, 54),
+        BackgroundColor3 = Theme.Secondary[2],
+        BorderSizePixel = 0,
+        Parent = Sidebar,
+    })
+    Footer:SetAttribute("FancyBackground", "Secondary.2")
+    Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = Footer })
 
-	local LocalPlayer = Fancy.Services.Players.LocalPlayer
-	if LocalPlayer then
-		Username.Text = LocalPlayer.DisplayName
-		Subname.Text = "@" .. LocalPlayer.Name
-		task.spawn(function()
-			local ok, content = pcall(
-				Fancy.Services.Players.GetUserThumbnailAsync, Fancy.Services.Players,
-				LocalPlayer.UserId,
-				Enum.ThumbnailType.HeadShot,
-				Enum.ThumbnailSize.Size48x48
-			)
-			if ok and Avatar.Parent then
-				Avatar.Image = content
-			end
-		end)
-	end
+    local Avatar = Fancy.Modules.Instance:Create("ImageLabel", {
+        Position = UDim2.new(0, 10, 0.5, -15),
+        Size = UDim2.fromOffset(30, 30),
+        BackgroundColor3 = Theme.Secondary[1],
+        BorderSizePixel = 0,
+        Parent = Footer,
+    })
+    Avatar:SetAttribute("FancyBackground", "Secondary.1")
+    Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Avatar })
+    do
+        local ring = Fancy.Modules.Instance:Create("UIStroke", {
+            Color = Theme.Accent,
+            Transparency = 0.45,
+            Thickness = 1,
+            Parent = Avatar,
+        })
+        ring:SetAttribute("FancyStroke", "Accent")
+    end
+
+    local Pulse = Fancy.Modules.Instance:Create("Frame", {
+        Position = UDim2.new(0, 31, 0, 33),
+        Size = UDim2.fromOffset(12, 12),
+        BackgroundColor3 = Theme.Success,
+        BackgroundTransparency = 0.45,
+        BorderSizePixel = 0,
+        Parent = Footer,
+    })
+    Pulse:SetAttribute("FancyBackground", "Success")
+    Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Pulse })
+
+    local Dot = Fancy.Modules.Instance:Create("Frame", {
+        Position = UDim2.new(0, 33, 0, 35),
+        Size = UDim2.fromOffset(8, 8),
+        BackgroundColor3 = Theme.Success,
+        BorderSizePixel = 0,
+        Parent = Footer,
+    })
+    Dot:SetAttribute("FancyBackground", "Success")
+    Fancy.Modules.Instance:Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = Dot })
+
+    task.spawn(function()
+        while Dot.Parent do
+            Utility.Tween(Pulse, 0.9, { BackgroundTransparency = 0.85 })
+            task.wait(0.9)
+            if not Dot.Parent then break end
+            Utility.Tween(Pulse, 0.9, { BackgroundTransparency = 0.45 })
+            task.wait(0.9)
+        end
+    end)
+
+    local Username = Fancy.Modules.Instance:Create("TextLabel", {
+        Position = UDim2.new(0, 50, 0, 12),
+        Size = UDim2.new(1, -58, 0, 14),
+        BackgroundTransparency = 1,
+        Font = Theme.TitleFont,
+        Text = "Guest",
+        TextSize = 12,
+        TextColor3 = Theme.Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        Parent = Footer,
+    })
+    Username:SetAttribute("FancyText", "Text")
+
+    local Subname = Fancy.Modules.Instance:Create("TextLabel", {
+        Position = UDim2.new(0, 50, 1, -24),
+        Size = UDim2.new(1, -58, 0, 12),
+        BackgroundTransparency = 1,
+        Font = Theme.Font,
+        Text = "@guest",
+        TextSize = 10.5,
+        TextColor3 = Theme.SubText,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        Parent = Footer,
+    })
+    Subname:SetAttribute("FancyText", "SubText")
+
+    local LocalPlayer = Fancy.Services.Players.LocalPlayer
+    if LocalPlayer then
+        Username.Text = LocalPlayer.DisplayName
+        Subname.Text = "@" .. LocalPlayer.Name
+        task.spawn(function()
+            local ok, content = pcall(
+                Fancy.Services.Players.GetUserThumbnailAsync, Fancy.Services.Players,
+                LocalPlayer.UserId,
+                Enum.ThumbnailType.HeadShot,
+                Enum.ThumbnailSize.Size48x48
+            )
+            if ok and Avatar.Parent then
+                Avatar.Image = content
+            end
+        end)
+    end
 
 	local Content = Fancy.Modules.Instance:Create("Frame", {
 		Name = "Content",
