@@ -197,9 +197,9 @@ function Utility.ElementBase(Fancy, container, settings)
     return Card, Label, Description, settings, Hover
 end
 
-function Utility.MakeDraggable(handle, target, canDrag)
+function Utility.MakeDraggable(handle, target, canDrag, onMoved)
     if not handle or not target then return end
-
+	
     local DRAG_DEADZONE = 4
 
     local dragging = false
@@ -208,7 +208,8 @@ function Utility.MakeDraggable(handle, target, canDrag)
     handle.InputBegan:Connect(function(input)
         if target.Parent == nil then return end
         if canDrag and not canDrag() then return end
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             startPos = target.Position
@@ -233,7 +234,7 @@ function Utility.MakeDraggable(handle, target, canDrag)
         end
     end)
 
-    UserInputService.TouchEnded:Connect(function(touch, processed)
+    UserInputService.TouchEnded:Connect(function(touch)
         if dragging and touch.UserInputState == Enum.UserInputState.Cancel then
             dragging = false
         end
@@ -251,18 +252,11 @@ function Utility.MakeDraggable(handle, target, canDrag)
                 return
             end
 
-            local abs = target.AbsolutePosition
-            local size = target.AbsoluteSize
-            local vp = Workspace.CurrentCamera and Workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
-            local visible = 60
+            target.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 
-            local dx, dy = delta.X, delta.Y
-            if abs.X + dx < -(size.X - visible) then dx = -(size.X - visible) - abs.X end
-            if abs.X + dx > vp.X - visible then dx = (vp.X - visible) - abs.X end
-            if abs.Y + dy < -(size.Y - visible) then dy = -(size.Y - visible) - abs.Y end
-            if abs.Y + dy > vp.Y - visible then dy = (vp.Y - visible) - abs.Y end
-
-            target.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + dx, startPos.Y.Scale, startPos.Y.Offset + dy)
+            if typeof(onMoved) == "function" then
+                onMoved(target)
+            end
         end
     end)
 end
