@@ -2,7 +2,7 @@
 	Fancy UI Library
 
 	10/10/2026
-	3:27 AM
+	3:41 AM
 	GMT+7
 ]]
 
@@ -5642,6 +5642,9 @@ function Main:CreateWindow(properties)
 		end
 	end
 
+
+	Fancy.WindowSettings = merged
+
 	local window = Window:Create(WindowDefaults)
 	if not window then
 		warn("[Fancy] Elements/Window.lua returned nil")
@@ -5649,8 +5652,6 @@ function Main:CreateWindow(properties)
 	end
 	
 	SaveManager:Initialize()
-	
-	Fancy.WindowSettings = merged
 	Fancy.WindowAPI = window
 	return window
 end
