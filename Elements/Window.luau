@@ -620,6 +620,9 @@ function Window:Create(Fancy, windowSettings, default)
     end
     task.delay(0.3, keepInBounds)
 
+    local COMPACT_START = 16
+    local COMPACT_ICON_GAP = 26
+
     function Window:Collapse(state)
         local nextState = (state == nil) and not collapsed or state == true
         if nextState == collapsed then return end
@@ -627,20 +630,27 @@ function Window:Create(Fancy, windowSettings, default)
 
         if collapsed then
             fullSize = Vector2.new(Main.AbsoluteSize.X, Main.AbsoluteSize.Y)
+            setChromeVisible(false)
 
-            local titleStart = Title.Position.X.Offset
-            local barWidth = titleStart + measureTitle(Title.Text) + 12
+            local iconShown = Logo.Visible
+            local contentStart = iconShown and (COMPACT_START + COMPACT_ICON_GAP) or COMPACT_START
+            local barWidth = contentStart + measureTitle(Title.Text) + COMPACT_START
 
-            local lightsWidth = LIGHTS_X + 2 * LIGHT_PITCH + LIGHT_SIZE + 8
-            barWidth = math.max(barWidth, lightsWidth)
+            barWidth = math.max(barWidth, 90)
             barWidth = math.min(barWidth, fullSize.X)
 
-            setChromeVisible(false)
+            Logo.Position = UDim2.new(0, COMPACT_START, 0.5, -9)
+            Title.Position = UDim2.new(0, contentStart, 0.5, -9)
+
             Utility.Tween(Main, 0.32, {
                 Size = UDim2.fromOffset(barWidth, 44),
             }, Enum.EasingStyle.Quart)
         else
             setChromeVisible(true)
+
+            Logo.Position = UDim2.new(0, 78, 0.5, -9)
+            Title.Position = UDim2.new(0, Logo.Visible and 104 or 78, 0.5, -9)
+
             Utility.Tween(Main, 0.32, {
                 Size = UDim2.fromOffset(fullSize.X, fullSize.Y),
             }, Enum.EasingStyle.Quart)
@@ -694,8 +704,8 @@ function Window:Create(Fancy, windowSettings, default)
         end
         Title.Text = text
         if collapsed then
-            local lightsWidth = LIGHTS_X + 2 * LIGHT_PITCH + LIGHT_SIZE + 8
-            local barWidth = math.max(Title.Position.X.Offset + measureTitle(text) + 12, lightsWidth)
+            local contentStart = Logo.Visible and (COMPACT_START + COMPACT_ICON_GAP) or COMPACT_START
+            local barWidth = math.max(contentStart + measureTitle(text) + COMPACT_START, 90)
             Utility.Tween(Main, 0.2, {
                 Size = UDim2.fromOffset(math.min(barWidth, fullSize.X), Main.AbsoluteSize.Y),
             }, Enum.EasingStyle.Quart)
@@ -709,9 +719,21 @@ function Window:Create(Fancy, windowSettings, default)
         else
             Logo.Visible = false
         end
-        Utility.Tween(Title, 0.15, {
-            Position = UDim2.new(0, Logo.Visible and 104 or 78, 0.5, -9),
-        })
+
+        if collapsed then
+            local contentStart = Logo.Visible and (COMPACT_START + COMPACT_ICON_GAP) or COMPACT_START
+            Logo.Position = UDim2.new(0, COMPACT_START, 0.5, -9)
+            Title.Position = UDim2.new(0, contentStart, 0.5, -9)
+
+            local barWidth = math.max(contentStart + measureTitle(Title.Text) + COMPACT_START, 90)
+            Utility.Tween(Main, 0.2, {
+                Size = UDim2.fromOffset(math.min(barWidth, fullSize.X), Main.AbsoluteSize.Y),
+            }, Enum.EasingStyle.Quart)
+        else
+            Utility.Tween(Title, 0.15, {
+                Position = UDim2.new(0, Logo.Visible and 104 or 78, 0.5, -9),
+            })
+        end
     end
 
     function Window:NewTab(settings)
