@@ -4577,10 +4577,7 @@ function Topbar:Create(settings)
 				Pill.ZIndex = 12
 			end
 			if Topbar.Dragged then
-				Pill.Position = UDim2.new(
-					startPos.X.Scale, startPos.X.Offset + delta.X,
-					startPos.Y.Scale, startPos.Y.Offset + delta.Y
-				)
+				Pill.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 			end
 		end
 	end))
@@ -4656,13 +4653,7 @@ function Window:Create(default)
 	Fancy.ThemeName = ThemeName
 
 	local function measureTitle(text)
-		local size = Fancy.Services.TextService:GetTextSize(
-			tostring(text or ""),
-			14,
-			Theme.TitleFont,
-			Vector2.new(1000, 100)
-		)
-		return size.X
+		return Fancy.Services.TextService:GetTextSize(tostring(text or ""), 14, Theme.TitleFont, Vector2.new(1000, 100)).X
 	end
 
 	local Center = Fancy.WindowSettings.Center
@@ -5651,7 +5642,7 @@ function Main:CreateWindow(properties)
 		end
 	end
 
-	local window = Window:Create(merged, WindowDefaults)
+	local window = Window:Create(WindowDefaults)
 	if not window then
 		warn("[Fancy] Elements/Window.lua returned nil")
 		return nil
