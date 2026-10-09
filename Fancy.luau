@@ -1,8 +1,8 @@
 --[[
     Fancy UI Library
 
-    10/7/2026
-    1:59 AM
+    10/9/2026
+    10:32 PM
     GMT+7
 ]]
 
@@ -79,6 +79,7 @@ end
 
 Fancy.Services.UserInputService = GetService("UserInputService")
 Fancy.Services.TweenService = GetService("TweenService")
+Fancy.Services.TextService = GetService("TextService")
 Fancy.Services.RunService = GetService("RunService")
 Fancy.Services.Workspace = GetService("Workspace")
 Fancy.Services.CoreGui = GetService("CoreGui")
