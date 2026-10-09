@@ -6,6 +6,17 @@ function Window:Create(Fancy, windowSettings, default)
     local Utility = Fancy.Modules.Utility
     local Icons = Fancy.Modules.Icons
 
+    local function measureTitle(text)
+        local title = tostring(text or windowSettings.Title or default.Title or "Fancy UI")
+        local size = Fancy.Services.TextService:GetTextSize(
+            title,
+            14,
+            Theme.TitleFont,
+            Vector2.new(1000, 100)
+        )
+        return size.X
+    end
+
     local ThemeName = windowSettings.Theme or default.Theme or "Default"
     local Theme = Fancy.Themes[ThemeName] or Fancy.Themes.Default
     Fancy.Theme = Theme
@@ -610,18 +621,30 @@ function Window:Create(Fancy, windowSettings, default)
     end
     task.delay(0.3, keepInBounds)
 
+    local TITLE_START = hasIcon and 104 or 78
+    local TITLE_RIGHT_PADDING = 12
+
     function Window:Collapse(state)
         local nextState = (state == nil) and not collapsed or state == true
         if nextState == collapsed then return end
         collapsed = nextState
-
         if collapsed then
             fullSize = Vector2.new(Main.AbsoluteSize.X, Main.AbsoluteSize.Y)
+
+            local barWidth = TITLE_START + measureTitle(Title.Text) + TITLE_RIGHT_PADDING
+            local lightsWidth = LIGHTS_X + 2 * LIGHT_PITCH + LIGHT_SIZE + 8
+            barWidth = math.max(barWidth, lightsWidth)
+            barWidth = math.min(barWidth, fullSize.X)
+
             setChromeVisible(false)
-            Utility.Tween(Main, 0.32, { Size = UDim2.fromOffset(fullSize.X, 44) }, Enum.EasingStyle.Quart)
+            Utility.Tween(Main, 0.32, {
+                Size = UDim2.fromOffset(barWidth, 44),
+            }, Enum.EasingStyle.Quart)
         else
             setChromeVisible(true)
-            Utility.Tween(Main, 0.32, { Size = UDim2.fromOffset(fullSize.X, fullSize.Y) }, Enum.EasingStyle.Quart)
+            Utility.Tween(Main, 0.32, {
+                Size = UDim2.fromOffset(fullSize.X, fullSize.Y),
+            }, Enum.EasingStyle.Quart)
             task.delay(0.33, keepInBounds)
         end
 
@@ -671,6 +694,15 @@ function Window:Create(Fancy, windowSettings, default)
             return
         end
         Title.Text = text
+        if collapsed then
+            local barWidth = TITLE_START + measureTitle(text) + TITLE_RIGHT_PADDING
+            local lightsWidth = LIGHTS_X + 2 * LIGHT_PITCH + LIGHT_SIZE + 8
+            barWidth = math.max(barWidth, lightsWidth)
+            local currentHeight = Main.AbsoluteSize.Y -- stays 44 while collapsed
+            Utility.Tween(Main, 0.2, {
+                Size = UDim2.fromOffset(math.min(barWidth, fullSize.X), currentHeight),
+            }, Enum.EasingStyle.Quart)
+        end
     end
 
     function Window:SetIcon(name)
