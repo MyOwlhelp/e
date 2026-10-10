@@ -2,7 +2,7 @@
 	Fancy UI Library
 
 	10/10/2026
-	3:41 AM
+	4:31 PM
 	GMT+7
 ]]
 
@@ -4097,7 +4097,7 @@ function Slider:Create(container, settings)
 		changedConnection:Disconnect()
 	end
 
-	endedConnection = Fancy.Services.UserInputService.InputEnded:Connect(function(input)
+	endedConnection = Services.UserInputService.InputEnded:Connect(function(input)
 		if not Card.Parent then disconnect() return end
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = false
@@ -4106,7 +4106,7 @@ function Slider:Create(container, settings)
 		end
 	end)
 
-	changedConnection = Fancy.Services.UserInputService.InputChanged:Connect(function(input)
+	changedConnection = Services.UserInputService.InputChanged:Connect(function(input)
 		if not dragging then return end
 		if not Card.Parent then disconnect() return end
 		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
@@ -4653,7 +4653,7 @@ function Window:Create(default)
 	Fancy.ThemeName = ThemeName
 
 	local function measureTitle(text)
-		return Fancy.Services.TextService:GetTextSize(tostring(text or ""), 14, Theme.TitleFont, Vector2.new(1000, 100)).X
+		return Services.TextService:GetTextSize(tostring(text or ""), 14, Theme.TitleFont, Vector2.new(1000, 100)).X
 	end
 
 	local Center = Fancy.WindowSettings.Center
@@ -4672,11 +4672,11 @@ function Window:Create(default)
 		Resizeable = true
 	end
 
-	local UserInputService = Fancy.Services.UserInputService
+	local UserInputService = Services.UserInputService
 	local isMobile = UserInputService.TouchEnabled and not UserInputService.MouseEnabled and not UserInputService.KeyboardEnabled
 
 	local function getViewport()
-		local camera = Fancy.Services.Workspace.CurrentCamera
+		local camera = Services.Workspace.CurrentCamera
 		return camera and camera.ViewportSize or Vector2.new(1920, 1080)
 	end
 
@@ -5135,13 +5135,13 @@ function Window:Create(default)
 	})
 	Subname:SetAttribute("FancyText", "SubText")
 
-	local LocalPlayer = Fancy.Services.Players.LocalPlayer
+	local LocalPlayer = Services.Players.LocalPlayer
 	if LocalPlayer then
 		Username.Text = LocalPlayer.DisplayName
 		Subname.Text = "@" .. LocalPlayer.Name
 		task.spawn(function()
 			local ok, content = pcall(
-				Fancy.Services.Players.GetUserThumbnailAsync, Fancy.Services.Players,
+				Services.Players.GetUserThumbnailAsync, Services.Players,
 				LocalPlayer.UserId,
 				Enum.ThumbnailType.HeadShot,
 				Enum.ThumbnailSize.Size48x48
@@ -5584,7 +5584,7 @@ function Window:Create(default)
 		end))
 
 		do
-			local camera = Fancy.Services.Workspace.CurrentCamera
+			local camera = Services.Workspace.CurrentCamera
 			if camera then
 				table.insert(connections, camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
 					if collapsed then return end
