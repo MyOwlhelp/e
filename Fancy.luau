@@ -2,13 +2,11 @@
 	Fancy UI Library
 
 	10/10/2026
-	6:22 PM
+	7:09 PM
 	GMT+7
 ]]
 
 local Fancy = {
-	Elements = {},
-	Modules = {},
 	Tabs = {},
 	Topbars = {},
 	SelectedTab = nil,
