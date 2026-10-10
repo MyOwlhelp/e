@@ -2,7 +2,7 @@
 	Fancy UI Library
 
 	10/10/2026
-	4:31 PM
+	5:35 PM
 	GMT+7
 ]]
 
@@ -99,17 +99,19 @@ local Notifications = {}
 local Signal = {}
 local Utility = {}
 
-local Button = {}
-local Dropdown = {}
-local Input = {}
-local Keybind = {}
-local Paragraph = {}
-local Section = {}
-local Slider = {}
-local Tab = {}
-local Toggle = {}
-local Topbar = {}
-local Window = {}
+local Elements = {
+	Button = {},
+	Dropdown = {},
+	Input = {},
+	Keybind = {},
+	Paragraph = {},
+	Section = {},
+	Slider = {},
+	Tab = {},
+	Toggle = {},
+	Topbar = {},
+	Window = {}
+}
 
 function InstanceModule:Create(className, properties)
 	if typeof(className) ~= "string" then return nil end
@@ -3260,7 +3262,7 @@ function SaveManager:CreateConfigSection(container)
 	return host
 end
 
-function Button:Create(container, settings)
+function Elements.Button:Create(container, settings)
 	local Card, Label, Description, settings, Hover = Utility.ElementBase(container, settings)
 
 	local Icon
@@ -3340,7 +3342,7 @@ function Button:Create(container, settings)
 	return Button
 end
 
-function Dropdown:Create(container, settings)
+function Elements.Dropdown:Create(container, settings)
 	local Card, Label, Description, settings = Utility.ElementBase(container, settings)
 	Card.ClipsDescendants = true
 	local baseHeight = Card.Size.Y.Offset
@@ -3560,7 +3562,7 @@ function Dropdown:Create(container, settings)
 	return Dropdown
 end
 
-function Input:Create(container, settings)
+function Elements.Input:Create(container, settings)
 	local Card, Label, Description, settings = Utility.ElementBase(container, settings)
 
 	Label.Size = UDim2.new(0.5, -10, 0, Label.Size.Y.Offset)
@@ -3641,7 +3643,7 @@ function Input:Create(container, settings)
 	return Input
 end
 
-function Keybind:Create(container, settings)
+function Elements.Keybind:Create(container, settings)
 	local Card, Label, Description, settings = Utility.ElementBase(container, settings)
 	if Description then
 		Description.Size = UDim2.new(1, -80, 0, 14)
@@ -3782,7 +3784,7 @@ function Keybind:Create(container, settings)
 	return Keybind
 end
 
-function Paragraph:Create(container, settings)
+function Elements.Paragraph:Create(container, settings)
 	settings = typeof(settings) == "table" and settings or {}
 
 	local Card = InstanceModule:Create("Frame", {
@@ -3856,7 +3858,7 @@ function Paragraph:Create(container, settings)
 	return Paragraph
 end
 
-function Section:Create(container, settings)
+function Elements.Section:Create(container, settings)
 	settings = typeof(settings) == "table" and settings or {}
 
 	local Theme = Fancy.Theme
@@ -3910,7 +3912,7 @@ function Section:Create(container, settings)
 	})
 
 	function Section:NewSection(props)
-		return Section:Create(Container, props)
+		return Elements.Section:Create(Container, props)
 	end
 
 	local elements = {
@@ -3938,7 +3940,7 @@ function Section:Create(container, settings)
 	return Section
 end
 
-function Slider:Create(container, settings)
+function Elements.Slider:Create(container, settings)
 	settings = typeof(settings) == "table" and settings or {}
 
 	local hasDescription = typeof(settings.Description) == "string" and settings.Description ~= ""
@@ -4131,7 +4133,7 @@ function Slider:Create(container, settings)
 	return Slider
 end
 
-function Tab:Create(settings)
+function Elements.Tab:Create(settings)
 	if not Fancy.Window or not Fancy.Refs then return nil end
 	settings = typeof(settings) == "table" and settings or {}
 
@@ -4301,7 +4303,7 @@ function Tab:Create(settings)
 	end)
 
 	function Tab:NewSection(props)
-		return Section:Create(Page, props)
+		return Elements.Section:Create(Page, props)
 	end
 
 	local elements = {
@@ -4330,7 +4332,7 @@ function Tab:Create(settings)
 	return Tab
 end
 
-function Toggle:Create(container, settings)
+function Elements.Toggle:Create(container, settings)
 	local Card, Label, Description, settings = Utility.ElementBase(container, settings)
 	if Description then
 		Description.Size = UDim2.new(1, -60, 0, 14)
@@ -4439,7 +4441,7 @@ local function Reflow()
 	end
 end
 
-function Topbar:Create(settings)
+function Elements.Topbar:Create(settings)
 	local Host = Fancy.TopbarUI or Fancy.MainUI
 	if not Host then return nil end
 	settings = typeof(settings) == "table" and settings or {}
@@ -4644,7 +4646,7 @@ function Topbar:Create(settings)
 	return Topbar
 end
 
-function Window:Create(default)
+function Elements.Window:Create(default)
 	if not Fancy.MainUI or Fancy.Window then return nil end
 
 	local ThemeName = Fancy.WindowSettings.Theme or default.Theme or "Default"
@@ -4854,9 +4856,11 @@ function Window:Create(default)
 	TrafficLight("Close", Theme.Danger, 1, function()
 		Window:Destroy()
 	end)
+	
 	TrafficLight("Minimize", Theme.Warning, 2, function()
 		Window:Collapse()
 	end)
+	
 	TrafficLight("Zoom", Theme.Success, 3, function()
 		Window:ToggleMaximize()
 	end)
@@ -5372,11 +5376,11 @@ function Window:Create(default)
 	end
 
 	function Window:NewTab(settings)
-		return Tab:Create(settings)
+		return Elements.Tab:Create(settings)
 	end
 
 	function Window:NewTopbar(settings)
-		return Topbar:Create(settings)
+		return Elements.Topbar:Create(settings)
 	end
 
 	function Window:SelectTab(reference)
@@ -5645,7 +5649,7 @@ function Main:CreateWindow(properties)
 
 	Fancy.WindowSettings = merged
 
-	local window = Window:Create(WindowDefaults)
+	local window = Elements.Window:Create(WindowDefaults)
 	if not window then
 		warn("[Fancy] Elements/Window.lua returned nil")
 		return nil
