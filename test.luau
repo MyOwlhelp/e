@@ -2,7 +2,7 @@
 	Fancy UI Library
 
 	10/10/2026
-	5:35 PM
+	6:22 PM
 	GMT+7
 ]]
 
@@ -2141,9 +2141,8 @@ function Utility.SafeCallback(callback, ...)
 		warn("[Fancy] Callback error: " .. tostring(err))
 	end
 
-	local SM = Fancy and Fancy.Modules and Fancy.Modules.SaveManager
-	if SM and typeof(SM.QueueSave) == "function" and Fancy.WindowSettings and typeof(Fancy.WindowSettings.Configuration) == "table" and Fancy.WindowSettings.Configuration.AutoSave then
-		SM.QueueSave()
+	if typeof(SaveManager.QueueSave) == "function" and Fancy.WindowSettings and typeof(Fancy.WindowSettings.Configuration) == "table" and Fancy.WindowSettings.Configuration.AutoSave then
+		SaveManager.QueueSave()
 	end
 end
 
@@ -2758,8 +2757,8 @@ function Notifications.Send(props)
 end
 
 local function notify(props)
-	if Fancy and Fancy.MainUI and Fancy.Modules and Fancy.Modules.Notifications then
-		Fancy.Modules.Notifications.Send(props)
+	if Fancy and Fancy.MainUI then
+		Notifications.Send(props)
 	end
 end
 
@@ -3547,7 +3546,7 @@ function Elements.Dropdown:Create(container, settings)
 	end)
 
 	if settings.Flag then
-		Fancy.Modules.SaveManager.Register(settings.Flag, {
+		SaveManager.Register(settings.Flag, {
 			Instance = Card,
 			Get = function()
 				return Dropdown:Get()
@@ -3627,7 +3626,7 @@ function Elements.Input:Create(container, settings)
 	end
 
 	if settings.Flag then
-		Fancy.Modules.SaveManager.Register(settings.Flag, {
+		SaveManager.Register(settings.Flag, {
 			Instance = Card,
 			Get = function()
 				return Input:Get()
@@ -3768,7 +3767,7 @@ function Elements.Keybind:Create(container, settings)
 	end
 
 	if settings.Flag then
-		Fancy.Modules.SaveManager.Register(settings.Flag, {
+		SaveManager.Register(settings.Flag, {
 			Instance = Card,
 			Get = function()
 				local bound = Keybind:Get()
@@ -3927,7 +3926,7 @@ function Elements.Section:Create(container, settings)
 
 	for methodName, elementName in elements do
 		Section[methodName] = function(_, props)
-			return Fancy.Elements[elementName]:Create(Container, props)
+			return Elements[elementName]:Create(Container, props)
 		end
 	end
 
@@ -4117,14 +4116,14 @@ function Elements.Slider:Create(container, settings)
 	end)
 
 	if settings.Flag then
-		Fancy.Modules.SaveManager.Register(settings.Flag, {
+		SaveManager.Register(settings.Flag, {
 			Instance = Card,
 			Get = function()
 				return Slider:Get()
 			end,
 			Set = function(value)
 				Slider:Set(value)
-			end,
+			end
 		})
 	end
 
@@ -4315,9 +4314,10 @@ function Elements.Tab:Create(settings)
 		NewKeybind = "Keybind",
 		NewDropdown = "Dropdown",
 	}
+
 	for methodName, elementName in elements do
 		Tab[methodName] = function(_, props)
-			return Fancy.Elements[elementName]:Create(Page, props)
+			return Elements[elementName]:Create(Page, props)
 		end
 	end
 
@@ -4415,7 +4415,7 @@ function Elements.Toggle:Create(container, settings)
 	end)
 
 	if settings.Flag then
-		Fancy.Modules.SaveManager.Register(settings.Flag, {
+		SaveManager.Register(settings.Flag, {
 			Instance = Card,
 			Get = function()
 				return Toggle:Get()
@@ -5431,7 +5431,7 @@ function Elements.Window:Create(default)
 	end
 
 	function Window:Notify(props)
-		Fancy.Modules.Notifications.Send(props)
+		Notifications.Send(props)
 	end
 
 	function Window:SetTheme(name)
@@ -5646,7 +5646,6 @@ function Main:CreateWindow(properties)
 		end
 	end
 
-
 	Fancy.WindowSettings = merged
 
 	local window = Elements.Window:Create(WindowDefaults)
@@ -5706,11 +5705,11 @@ end
 
 function Main:Notify(props)
 	if not Fancy.MainUI then return end
-	Fancy.Modules.Notifications.Send(props)
+	Notifications.Send(props)
 end
 
 Main.Themes = Themes
 Main.Icons = Icons
 Main.Utility = Utility
-Main.SaveManager = Fancy.Modules.SaveManager
+Main.SaveManager = SaveManager
 return Main
