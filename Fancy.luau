@@ -2,7 +2,7 @@
 	Fancy UI Library
 
 	10/11/2026
-	10:51 PM
+	11:00 PM
 	GMT+7
 ]]
 
@@ -4576,9 +4576,20 @@ function Elements.Topbar:Create(settings)
 				Topbar.Dragged = true
 				Pill.ZIndex = 12
 			end
-			if Topbar.Dragged then
-				Pill.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-			end
+            if Topbar.Dragged then
+                local newX = startPos.X.Offset + delta.X
+                local newY = startPos.Y.Offset + delta.Y
+
+                local camera = Services.Workspace.CurrentCamera
+                local vp = camera and camera.ViewportSize or Vector2.new(1920, 1080)
+                local pillSize = Pill.AbsoluteSize
+                local inset = 8
+
+                newX = math.clamp(newX, inset, vp.X - pillSize.X - inset)
+                newY = math.clamp(newY, inset, vp.Y - pillSize.Y - inset)
+
+                Pill.Position = UDim2.new(0, newX, 0, newY)
+            end
 		end
 	end))
 
@@ -5286,6 +5297,10 @@ function Elements.Window:Create(default)
 			Utility.Tween(Main, 0.32, {
 				Size = UDim2.fromOffset(barWidth, 44),
 			}, Enum.EasingStyle.Quart)
+
+            keepInBounds()
+            task.delay(0.16, keepInBounds)
+            task.delay(0.33, keepInBounds)
 		else
 			setChromeVisible(true)
 
@@ -5295,7 +5310,10 @@ function Elements.Window:Create(default)
 			Utility.Tween(Main, 0.32, {
 				Size = UDim2.fromOffset(fullSize.X, fullSize.Y),
 			}, Enum.EasingStyle.Quart)
-			task.delay(0.33, keepInBounds)
+			
+        	keepInBounds()
+            task.delay(0.16, keepInBounds)
+            task.delay(0.33, keepInBounds)
 		end
 
 		if Grip then
@@ -5328,10 +5346,12 @@ function Elements.Window:Create(default)
 				Position = UDim2.fromScale(0.5, 0.5),
 				Size = UDim2.fromOffset(vp.X - margin * 2, vp.Y - margin * 2),
 			}, Enum.EasingStyle.Quart)
-		elseif savedBounds then
-			Utility.Tween(Main, 0.32, savedBounds, Enum.EasingStyle.Quart)
-			task.delay(0.33, keepInBounds)
-		end
+        elseif savedBounds then
+            Utility.Tween(Main, 0.32, savedBounds, Enum.EasingStyle.Quart)
+            keepInBounds()
+            task.delay(0.16, keepInBounds)
+            task.delay(0.33, keepInBounds)
+        end
 
 		if Grip then
 			Grip.Visible = not maximized and not collapsed
@@ -5593,17 +5613,44 @@ function Elements.Window:Create(default)
 			local camera = Services.Workspace.CurrentCamera
 			if camera then
 				table.insert(connections, camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-					if collapsed then return end
-					local vp = getViewport()
-					local maxW = math.max(vp.X - MARGIN * 2, effMinX)
-					local maxH = math.max(vp.Y - MARGIN * 2, effMinY)
-					local newW = math.min(Main.AbsoluteSize.X, maxW)
-					local newH = math.min(Main.AbsoluteSize.Y, maxH)
-					if newW ~= Main.AbsoluteSize.X or newH ~= Main.AbsoluteSize.Y then
-						Main.Size = UDim2.fromOffset(newW, newH)
-						fullSize = Vector2.new(newW, newH)
+					if not collapsed then
+						local vp = getViewport()
+						local maxW = math.max(vp.X - MARGIN * 2, effMinX)
+						local maxH = math.max(vp.Y - MARGIN * 2, effMinY)
+						local newW = math.min(Main.AbsoluteSize.X, maxW)
+						local newH = math.min(Main.AbsoluteSize.Y, maxH)
+						if newW ~= Main.AbsoluteSize.X or newH ~= Main.AbsoluteSize.Y then
+							Main.Size = UDim2.fromOffset(newW, newH)
+							fullSize = Vector2.new(newW, newH)
+						end
+						keepInBounds()
 					end
-					keepInBounds()
+
+					task.delay(0.05, keepInBounds)
+					if Fancy.Topbars then
+						for _, bar in Fancy.Topbars do
+							if bar.Instance and bar.Instance.Parent and bar.Dragged then
+								local vp = camera.ViewportSize
+								local pos = bar.Instance.AbsolutePosition
+								local size = bar.Instance.AbsoluteSize
+								local ox = 0
+								if pos.X < 8 then
+									ox = 8 - pos.X
+								elseif pos.X > vp.X - size.X - 8 then
+									ox = (vp.X - size.X - 8) - pos.X
+								end
+								local oy = 0
+								if pos.Y < 8 then
+									oy = 8 - pos.Y
+								elseif pos.Y > vp.Y - size.Y - 8 then
+									oy = (vp.Y - size.Y - 8) - pos.Y
+								end
+								if ox ~= 0 or oy ~= 0 then
+									bar.Instance.Position = bar.Instance.Position + UDim2.fromOffset(ox, oy)
+								end
+							end
+						end
+					end
 				end))
 			end
 		end
