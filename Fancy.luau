@@ -1,8 +1,8 @@
 --[[
 	Fancy UI Library
 
-	10/10/2026
-	7:09 PM
+	10/11/2026
+	10:18 PM
 	GMT+7
 ]]
 
@@ -4681,7 +4681,7 @@ function Elements.Window:Create(default)
 	end
 
 	local MARGIN = isMobile and 8 or 24
-	local SidebarWidth = isMobile and 148 or 178
+	local SidebarWidth = isMobile and 136 or 178
 
 	local viewport = getViewport()
 	local availX = math.max(viewport.X - MARGIN * 2, 200)
@@ -4689,14 +4689,18 @@ function Elements.Window:Create(default)
 
 	local Size = Utility.ResolveSize(Fancy.WindowSettings.Size or default.Size, 691, 457)
 	if isMobile and Fancy.WindowSettings.Size == nil then
-		Size = UDim2.fromOffset(math.floor(availX * 0.96), math.floor(availY * 0.92))
+		Size = UDim2.fromOffset(math.floor(availX * 0.86), math.floor(availY * 0.68))
 	end
 
 	local width = math.min(Size.X.Offset, availX)
 	local height = math.min(Size.Y.Offset, availY)
 	Size = UDim2.fromOffset(width, height)
 
-	local MinSize = Fancy.WindowSettings.MinSize or default.MinSize or Vector2.new(540, 350)
+	local MinSize = windowSettings.MinSize or default.MinSize or Vector2.new(540, 350)
+	if isMobile then
+		MinSize = Vector2.new(math.min(MinSize.X, 320), math.min(MinSize.Y, 220))
+	end
+
 	local effMinX = math.min(MinSize.X, availX)
 	local effMinY = math.min(MinSize.Y, availY)
 
