@@ -2,7 +2,7 @@
 	Fancy UI Library
 
 	10/11/2026
-	10:18 PM
+	10:51 PM
 	GMT+7
 ]]
 
@@ -4696,7 +4696,7 @@ function Elements.Window:Create(default)
 	local height = math.min(Size.Y.Offset, availY)
 	Size = UDim2.fromOffset(width, height)
 
-	local MinSize = windowSettings.MinSize or default.MinSize or Vector2.new(540, 350)
+	local MinSize = Fancy.WindowSettings.MinSize or default.MinSize or Vector2.new(540, 350)
 	if isMobile then
 		MinSize = Vector2.new(math.min(MinSize.X, 320), math.min(MinSize.Y, 220))
 	end
