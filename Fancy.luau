@@ -1,8 +1,8 @@
 --[[
 	Fancy UI Library
 
-	10/11/2026
-	11:00 PM
+	10/15/2026
+	9:16 AM
 	GMT+7
 ]]
 
@@ -25,7 +25,7 @@ local WindowDefaults = {
 	Resizeable = true,
 	Shadow = false,
 	Position = UDim2.fromOffset(323, 34),
-	Size = UDim2.fromOffset(691, 457),
+	Size = UDim2.fromOffset(720, 480),
 	MinSize = Vector2.new(540, 350),
 	Theme = "Default",
 	ToggleKey = Enum.KeyCode.K,
@@ -1887,12 +1887,12 @@ local Themes = {
 			[1] = Color3.fromRGB(18, 18, 20),
 			[2] = Color3.fromRGB(28, 28, 32),
 		},
-		Accent = Color3.fromRGB(245, 245, 250),
-		Slider = Color3.fromRGB(215, 215, 222),
-		Text = Color3.fromRGB(245, 245, 248),
-		SubText = Color3.fromRGB(130, 130, 138),
+		Accent = Color3.fromRGB(70, 135, 255),
+		Slider = Color3.fromRGB(70, 135, 255),
+		Text = Color3.fromRGB(242, 244, 248),
+		SubText = Color3.fromRGB(145, 149, 160),
 		Stroke = Color3.fromRGB(255, 255, 255),
-		StrokeTransparency = 0.92,
+		StrokeTransparency = 0.94,
 		Shadow = Color3.fromRGB(0, 0, 0),
 		ShadowTransparency = 0.40,
 		Success = Color3.fromRGB(60, 220, 120),
@@ -4256,14 +4256,6 @@ function Elements.Tab:Create(settings)
 		Page.Visible = true
 		Page.Position = UDim2.new(0, 10, 0, 0)
 		Utility.Tween(Page, 0.22, { Position = UDim2.new(0, 0, 0, 0) }, Enum.EasingStyle.Quart)
-
-		Utility.Tween(Refs.PageTitle, 0.09, { TextTransparency = 1 })
-		task.delay(0.1, function()
-			if Fancy.SelectedTab == Tab and Refs.PageTitle and Refs.PageTitle.Parent then
-				Refs.PageTitle.Text = tostring(settings.Name or "Tab")
-				Utility.Tween(Refs.PageTitle, 0.14, { TextTransparency = 0 })
-			end
-		end)
 	end
 
 	function Tab:Deselect()
@@ -4278,9 +4270,6 @@ function Elements.Tab:Create(settings)
 		local value = tostring(text or "Tab")
 		settings.Name = value
 		Label.Text = value
-		if Fancy.SelectedTab == Tab then
-			Refs.PageTitle.Text = value
-		end
 	end
 
 	Button.MouseButton1Click:Connect(function()
@@ -4691,8 +4680,8 @@ function Elements.Window:Create(default)
 		return camera and camera.ViewportSize or Vector2.new(1920, 1080)
 	end
 
-	local MARGIN = isMobile and 8 or 24
-	local SidebarWidth = isMobile and 136 or 178
+	local MARGIN = isMobile and 6 or 12
+	local SidebarWidth = isMobile and 112 or 178
 
 	local viewport = getViewport()
 	local availX = math.max(viewport.X - MARGIN * 2, 200)
@@ -4700,7 +4689,7 @@ function Elements.Window:Create(default)
 
 	local Size = Utility.ResolveSize(Fancy.WindowSettings.Size or default.Size, 691, 457)
 	if isMobile and Fancy.WindowSettings.Size == nil then
-		Size = UDim2.fromOffset(math.floor(availX * 0.86), math.floor(availY * 0.68))
+		Size = UDim2.fromOffset(math.floor(availX * 0.92), math.floor(availY * 0.72))
 	end
 
 	local width = math.min(Size.X.Offset, availX)
@@ -4709,7 +4698,7 @@ function Elements.Window:Create(default)
 
 	local MinSize = Fancy.WindowSettings.MinSize or default.MinSize or Vector2.new(540, 350)
 	if isMobile then
-		MinSize = Vector2.new(math.min(MinSize.X, 320), math.min(MinSize.Y, 220))
+		MinSize = Vector2.new(math.min(MinSize.X, 280), math.min(MinSize.Y, 190))
 	end
 
 	local effMinX = math.min(MinSize.X, availX)
@@ -4725,7 +4714,7 @@ function Elements.Window:Create(default)
 		Parent = Fancy.MainUI,
 	})
 	Main:SetAttribute("FancyBackground", "Primary")
-	InstanceModule:Create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = Main })
+	InstanceModule:Create("UICorner", { CornerRadius = UDim.new(0, 12), Parent = Main })
 
 	do
 		local stroke = InstanceModule:Create("UIStroke", {
@@ -4755,26 +4744,10 @@ function Elements.Window:Create(default)
 		})
 	end
 
-	local Sheen = InstanceModule:Create("Frame", {
-		Name = "Sheen",
-		Size = UDim2.new(1, 0, 0, 90),
-		BackgroundColor3 = Color3.new(1, 1, 1),
-		BackgroundTransparency = 0,
-		BorderSizePixel = 0,
-		Parent = Main,
-	})
-	InstanceModule:Create("UIGradient", {
-		Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 0.955),
-			NumberSequenceKeypoint.new(1, 1),
-		}),
-		Rotation = 90,
-		Parent = Sheen,
-	})
 
 	local Topbar = InstanceModule:Create("Frame", {
 		Name = "Topbar",
-		Size = UDim2.new(1, 0, 0, 44),
+		Size = UDim2.new(1, 0, 0, isMobile and 38 or 44),
 		BackgroundTransparency = 1,
 		Active = true,
 		Parent = Main,
@@ -4788,9 +4761,9 @@ function Elements.Window:Create(default)
 	local connections = {}
 	local Grip
 
-	local LIGHT_SIZE = 12
-	local LIGHT_PITCH = 20
-	local LIGHTS_X = 14
+	local LIGHT_SIZE = isMobile and 9 or 12
+	local LIGHT_PITCH = isMobile and 15 or 20
+	local LIGHTS_X = isMobile and 10 or 14
 	local LIGHTS_IDLE = Color3.fromRGB(72, 74, 78)
 	local GLYPH_COLOR = Color3.fromRGB(43, 43, 46)
 
@@ -4881,7 +4854,7 @@ function Elements.Window:Create(default)
 	local hasIcon = typeof(Fancy.WindowSettings.Icon) == "string" and #Fancy.WindowSettings.Icon > 0
 	local Logo = InstanceModule:Create("ImageLabel", {
 		Name = "Logo",
-		Position = UDim2.new(0, 78, 0.5, -9),
+		Position = UDim2.new(0, isMobile and 52 or 78, 0.5, -9),
 		Size = UDim2.fromOffset(18, 18),
 		BackgroundTransparency = 1,
 		Image = Icons.Get(Fancy.WindowSettings.Icon or "sparkles"),
@@ -4892,8 +4865,8 @@ function Elements.Window:Create(default)
 	Logo:SetAttribute("FancyImage", "Accent")
 
 	local Title = InstanceModule:Create("TextLabel", {
-		Position = UDim2.new(0, hasIcon and 104 or 78, 0.5, -9),
-		Size = UDim2.new(0, hasIcon and 240 or 266, 0, 18),
+		Position = UDim2.new(0, isMobile and (hasIcon and 74 or 52) or (hasIcon and 104 or 78), 0.5, -9),
+		Size = UDim2.new(0, isMobile and 90 or (hasIcon and 240 or 266), 0, 18),
 		BackgroundTransparency = 1,
 		Font = Theme.TitleFont,
 		Text = Fancy.WindowSettings.Title or default.Title or "Fancy UI",
@@ -4905,20 +4878,102 @@ function Elements.Window:Create(default)
 	})
 	Title:SetAttribute("FancyText", "Text")
 
-	local PageTitle = InstanceModule:Create("TextLabel", {
+	local SearchButton = InstanceModule:Create("ImageButton", {
+		Name = "FeatureSearchButton",
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -16, 0.5, 0),
-		Size = UDim2.new(0, 160, 0, 16),
-		BackgroundTransparency = 1,
-		Font = Theme.Font,
-		Text = "",
-		TextSize = 12,
-		TextColor3 = Theme.SubText,
-		TextXAlignment = Enum.TextXAlignment.Right,
-		TextTruncate = Enum.TextTruncate.AtEnd,
+		Position = UDim2.new(1, -14, 0.5, 0),
+		Size = UDim2.fromOffset(26, 26),
+		BackgroundColor3 = Theme.Secondary[2],
+		BackgroundTransparency = 0.15,
+		BorderSizePixel = 0,
+		AutoButtonColor = false,
+		Image = Icons.Get("search"),
+		ImageColor3 = Theme.SubText,
 		Parent = Topbar,
 	})
-	PageTitle:SetAttribute("FancyText", "SubText")
+	InstanceModule:Create("UICorner", { CornerRadius = UDim.new(0, 7), Parent = SearchButton })
+	SearchButton:SetAttribute("FancyBackground", "Secondary.2")
+	SearchButton:SetAttribute("FancyImage", "SubText")
+
+	local FeatureSearch = InstanceModule:Create("TextBox", {
+		Name = "FeatureSearch",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -46, 0.5, 0),
+		Size = UDim2.new(0, 0, 0, 28),
+		BackgroundColor3 = Theme.Secondary[2],
+		BackgroundTransparency = 0.1,
+		BorderSizePixel = 0,
+		ClearTextOnFocus = false,
+		Font = Theme.Font,
+		PlaceholderText = "Search features...",
+		Text = "",
+		TextSize = 12,
+		TextColor3 = Theme.Text,
+		PlaceholderColor3 = Theme.SubText,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Visible = false,
+		Parent = Topbar,
+	})
+	InstanceModule:Create("UICorner", { CornerRadius = UDim.new(0, 7), Parent = FeatureSearch })
+	InstanceModule:Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), Parent = FeatureSearch })
+	FeatureSearch:SetAttribute("FancyBackground", "Secondary.2")
+	FeatureSearch:SetAttribute("FancyText", "Text")
+
+	local searchOpen = false
+	local function applyFeatureSearch(query)
+		query = string.lower(tostring(query or ""))
+		for _, tab in Fancy.Tabs do
+			local page = tab.Page
+			local tabMatches = query == "" or string.find(string.lower(tostring(tab.Settings.Name or "Tab")), query, 1, true) ~= nil
+			local featureMatches = false
+			if page then
+				for _, section in page:GetChildren() do
+					if section:IsA("GuiObject") then
+						local sectionMatch = query == "" or string.find(string.lower(tostring(section.Name or "")), query, 1, true) ~= nil
+						if not sectionMatch and query ~= "" then
+							for _, descendant in section:GetDescendants() do
+								if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
+									local haystack = string.lower(tostring(descendant.Name or "") .. " " .. tostring(descendant.Text or ""))
+									if string.find(haystack, query, 1, true) then
+										sectionMatch = true
+										break
+									end
+								end
+							end
+						end
+						if section:GetAttribute("FancySearchOriginalVisible") == nil then
+							section:SetAttribute("FancySearchOriginalVisible", section.Visible)
+						end
+						if query == "" then
+							section.Visible = section:GetAttribute("FancySearchOriginalVisible")
+						else
+							section.Visible = sectionMatch or tabMatches
+						end
+						featureMatches = featureMatches or sectionMatch
+					end
+				end
+			end
+			if tab.Button and tab.Button.Parent then
+				tab.Button.Visible = query == "" or tabMatches or featureMatches
+			end
+		end
+	end
+
+	SearchButton.Activated:Connect(function()
+		searchOpen = not searchOpen
+		FeatureSearch.Visible = searchOpen
+		Utility.Tween(FeatureSearch, 0.16, { Size = UDim2.new(0, searchOpen and (isMobile and 110 or 170) or 0, 0, 28) }, Enum.EasingStyle.Quart)
+		if searchOpen then
+			FeatureSearch:CaptureFocus()
+		else
+			FeatureSearch:ReleaseFocus()
+			FeatureSearch.Text = ""
+			applyFeatureSearch("")
+		end
+	end)
+	FeatureSearch:GetPropertyChangedSignal("Text"):Connect(function()
+		applyFeatureSearch(FeatureSearch.Text)
+	end)
 
 	local Version = typeof(Fancy.WindowSettings.Version) == "string" and Fancy.WindowSettings.Version or ""
 	local VersionLabel = nil
@@ -4943,7 +4998,8 @@ function Elements.Window:Create(default)
 		for _, light in lights do
 			light.Button.Visible = state
 		end
-		PageTitle.Visible = state
+		SearchButton.Visible = state
+		if not state then FeatureSearch.Visible = false else FeatureSearch.Visible = searchOpen end
 		if VersionLabel then
 			VersionLabel.Visible = state
 		end
@@ -4951,8 +5007,8 @@ function Elements.Window:Create(default)
 
 	local Body = InstanceModule:Create("Frame", {
 		Name = "Body",
-		Position = UDim2.new(0, 0, 0, 44),
-		Size = UDim2.new(1, 0, 1, -44),
+		Position = UDim2.new(0, 0, 0, isMobile and 38 or 44),
+		Size = UDim2.new(1, 0, 1, -(isMobile and 38 or 44)),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		ClipsDescendants = true,
@@ -4985,7 +5041,7 @@ function Elements.Window:Create(default)
 		Position = UDim2.new(0, 8, 0, 10),
 		Size = UDim2.new(1, -16, 0, 30),
 		BackgroundColor3 = Theme.Secondary[2],
-		BackgroundTransparency = 0.5,
+		BackgroundTransparency = 0.25,
 		Font = Theme.Font,
 		PlaceholderText = "Search tabs...",
 		Text = "",
@@ -5188,7 +5244,9 @@ function Elements.Window:Create(default)
 	Fancy.Refs = {
 		Topbar = Topbar,
 		Title = Title,
-		PageTitle = PageTitle,
+		PageTitle = nil,
+		SearchButton = SearchButton,
+		FeatureSearch = FeatureSearch,
 		TabList = TabList,
 		PageHolder = PageHolder,
 		Sidebar = Sidebar,
@@ -5197,47 +5255,18 @@ function Elements.Window:Create(default)
 	}
 	Fancy.Window = Main
 
-	local VISIBLE = isMobile and 0 or 60
-
 	local function keepInBounds()
+		if not Main or not Main.Parent then return end
 		local vp = getViewport()
 		local size = Main.AbsoluteSize
 		local pos = Main.AbsolutePosition
-
-		local minX, maxX
-		if size.X >= vp.X then
-			minX = (vp.X - size.X) / 2
-			maxX = minX
-		else
-			minX = isMobile and 0 or -(size.X - VISIBLE)
-			maxX = isMobile and (vp.X - size.X) or (vp.X - VISIBLE)
-		end
-
-		local minY, maxY
-		if size.Y >= vp.Y then
-			minY = (vp.Y - size.Y) / 2
-			maxY = minY
-		else
-			minY = isMobile and 0 or -(size.Y - VISIBLE)
-			maxY = isMobile and (vp.Y - size.Y) or (vp.Y - VISIBLE)
-		end
-
-		local ox = 0
-		if pos.X < minX then
-			ox = minX - pos.X
-		elseif pos.X > maxX then
-			ox = maxX - pos.X
-		end
-
-		local oy = 0
-		if pos.Y < minY then
-			oy = minY - pos.Y
-		elseif pos.Y > maxY then
-			oy = maxY - pos.Y
-		end
-
-		if ox ~= 0 or oy ~= 0 then
-			Main.Position = Main.Position + UDim2.fromOffset(ox, oy)
+		local maxX = math.max(0, vp.X - size.X)
+		local maxY = math.max(0, vp.Y - size.Y)
+		local x = math.clamp(pos.X, 0, maxX)
+		local y = math.clamp(pos.Y, 0, maxY)
+		local dx, dy = x - pos.X, y - pos.Y
+		if dx ~= 0 or dy ~= 0 then
+			Main.Position = Main.Position + UDim2.fromOffset(dx, dy)
 		end
 	end
 
@@ -5298,22 +5327,18 @@ function Elements.Window:Create(default)
 				Size = UDim2.fromOffset(barWidth, 44),
 			}, Enum.EasingStyle.Quart)
 
-            keepInBounds()
-            task.delay(0.16, keepInBounds)
-            task.delay(0.33, keepInBounds)
+            task.delay(0.34, keepInBounds)
 		else
 			setChromeVisible(true)
 
-			Logo.Position = UDim2.new(0, 78, 0.5, -9)
-			Title.Position = UDim2.new(0, Logo.Visible and 104 or 78, 0.5, -9)
+			Logo.Position = UDim2.new(0, isMobile and 52 or 78, 0.5, -9)
+			Title.Position = UDim2.new(0, isMobile and (Logo.Visible and 74 or 52) or (Logo.Visible and 104 or 78), 0.5, -9)
 
 			Utility.Tween(Main, 0.32, {
 				Size = UDim2.fromOffset(fullSize.X, fullSize.Y),
 			}, Enum.EasingStyle.Quart)
 			
-        	keepInBounds()
-            task.delay(0.16, keepInBounds)
-            task.delay(0.33, keepInBounds)
+            task.delay(0.34, keepInBounds)
 		end
 
 		if Grip then
@@ -5348,9 +5373,7 @@ function Elements.Window:Create(default)
 			}, Enum.EasingStyle.Quart)
         elseif savedBounds then
             Utility.Tween(Main, 0.32, savedBounds, Enum.EasingStyle.Quart)
-            keepInBounds()
-            task.delay(0.16, keepInBounds)
-            task.delay(0.33, keepInBounds)
+            task.delay(0.34, keepInBounds)
         end
 
 		if Grip then
@@ -5392,7 +5415,7 @@ function Elements.Window:Create(default)
 			}, Enum.EasingStyle.Quart)
 		else
 			Utility.Tween(Title, 0.15, {
-				Position = UDim2.new(0, Logo.Visible and 104 or 78, 0.5, -9),
+				Position = UDim2.new(0, isMobile and (Logo.Visible and 74 or 52) or (Logo.Visible and 104 or 78), 0.5, -9),
 			})
 		end
 	end
@@ -5443,12 +5466,26 @@ function Elements.Window:Create(default)
 		end
 	end
 
+	local toggleToken = 0
+	local windowVisible = true
 	function Window:Toggle(visible)
-		if not Fancy.MainUI then return end
-		if typeof(visible) == "boolean" then
-			Fancy.MainUI.Enabled = visible
+		if not Fancy.MainUI or not Main or not Main.Parent then return end
+		local show = typeof(visible) == "boolean" and visible or not windowVisible
+		if show == windowVisible then return end
+		windowVisible = show
+		toggleToken += 1
+		local token = toggleToken
+		if show then
+			Main.Visible = true
+			Scale.Scale = 0.94
+			Utility.Tween(Scale, 0.2, { Scale = 1 }, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 		else
-			Fancy.MainUI.Enabled = not Fancy.MainUI.Enabled
+			Utility.Tween(Scale, 0.16, { Scale = 0.94 }, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+			task.delay(0.17, function()
+				if token == toggleToken and Main and Main.Parent and not windowVisible then
+					Main.Visible = false
+				end
+			end)
 		end
 	end
 
